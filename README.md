@@ -2,7 +2,7 @@
 Intelligent Scheduling for Smarter Campuses
 
 
-# 🧩 The Problem
+# 🧩 The Problem Statement
 Most colleges still rely on manual or spreadsheet-based timetable creation, leading to:
 Class clashes and faculty overload
 
