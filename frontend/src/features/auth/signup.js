@@ -28,7 +28,7 @@ const Signup = () => {
             navigate('/login');
         } catch (err) {
             console.error("Signup failed", err);
-            setError(err.response?.data?.message || 'Failed to create account');
+            setError(err.message || 'Failed to create account');
         } finally {
             setLoading(false);
         }

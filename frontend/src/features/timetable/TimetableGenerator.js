@@ -34,7 +34,7 @@ const TimetableGenerator = () => {
             setGeneratedTimetable(result);
         } catch (err) {
             console.error("Generation failed", err);
-            setError(err.response?.data?.error || "Failed to generate timetable. Please check constraints and try again.");
+            setError(err.message || "Failed to generate timetable. Please check constraints and try again.");
         } finally {
             setIsGenerating(false);
         }
