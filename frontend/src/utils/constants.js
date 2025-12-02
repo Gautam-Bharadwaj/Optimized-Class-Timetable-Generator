@@ -1,7 +1,7 @@
 // Application constants using environment variables
 export const APP_NAME = import.meta.env.VITE_APP_NAME || 'Timetable Generator';
 export const APP_VERSION = import.meta.env.VITE_APP_VERSION || '1.0.0';
-export const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+export const API_URL = import.meta.env.VITE_API_URL || 'https://optimized-class-timetable-generator-ochre.vercel.app/api';
 export const API_AUTH_KEY = import.meta.env.VITE_API_AUTH_KEY || '';
 export const API_TIMEOUT = parseInt(import.meta.env.VITE_API_TIMEOUT || '30000');
 
