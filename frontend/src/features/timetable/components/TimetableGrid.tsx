@@ -79,7 +79,6 @@ const TimetableGrid = ({
                                     <TimetableCell
                                         key={day}
                                         slot={slot}
-                                        timeSlot={timeSlot}
                                         hasConflict={hasConflict}
                                         onClick={() => slot && handleSlotClick(slot)}
                                     />

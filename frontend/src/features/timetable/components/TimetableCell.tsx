@@ -2,12 +2,11 @@ import { TimetableSlot } from '../timetable.types';
 
 interface TimetableCellProps {
     slot?: TimetableSlot;
-    timeSlot: string;
     hasConflict?: boolean;
     onClick?: () => void;
 }
 
-const TimetableCell = ({ slot, timeSlot, hasConflict, onClick }: TimetableCellProps) => {
+const TimetableCell = ({ slot, hasConflict, onClick }: TimetableCellProps) => {
     if (!slot) {
         return (
             <td className="border border-gray-300 px-2 py-3 bg-gray-50">

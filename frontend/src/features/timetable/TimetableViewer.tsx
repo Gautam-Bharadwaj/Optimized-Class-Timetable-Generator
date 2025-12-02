@@ -84,11 +84,50 @@ const TimetableViewer = ({ timetable, onApprove, onReject, onExport }: Timetable
                             </div>
                             {timetable.scoreJson.conflicts !== undefined && (
                                 <div>
-                                </tbody>
-                </table>
+                                    <span className="font-medium text-gray-600">Conflicts:</span>{' '}
+                                    <span className={`font-bold ${timetable.scoreJson.conflicts > 0 ? 'text-red-600' : 'text-green-600'}`}>
+                                        {timetable.scoreJson.conflicts}
+                                    </span>
+                                </div>
+                            )}
+                        </>
+                    )}
+                    <div>
+                        <span className="font-medium text-gray-600">Total Slots:</span>{' '}
+                        <span className="text-gray-800">{timetable.slots.length}</span>
+                    </div>
                 </div>
             </Card>
-            );
+
+            {/* Conflict Indicator */}
+            <ConflictIndicator slots={filteredSlots} />
+
+            {/* View Controls */}
+            <ViewControls
+                viewMode={viewMode}
+                onViewModeChange={setViewMode}
+                showWeekend={showWeekend}
+                onShowWeekendChange={setShowWeekend}
+                highlightConflicts={highlightConflicts}
+                onHighlightConflictsChange={setHighlightConflicts}
+            />
+
+            {/* Filters */}
+            <TimetableFilters onFilterChange={setFilters} />
+
+            {/* Timetable Grid */}
+            <div className="bg-white rounded-lg shadow-md p-6">
+                <h3 className="text-lg font-bold text-gray-800 mb-4">
+                    {viewMode === 'week' ? 'Weekly Schedule' : 'Daily Schedule'}
+                </h3>
+                <TimetableGrid
+                    slots={filteredSlots}
+                    showWeekend={showWeekend}
+                    highlightConflicts={highlightConflicts}
+                />
+            </div>
+        </div>
+    );
 };
 
-            export default TimetableViewer;
+export default TimetableViewer;
