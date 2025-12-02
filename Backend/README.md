@@ -61,6 +61,17 @@ Frontend: React (TypeScript)
  Optimizer Engine: Python microservice using Google OR-Tools (CP-SAT)
  Hosting: Dockerized on AWS / Render
 
+# 🔐 Login & Signup System (How it Works)
+The backend handles who is allowed to enter the system.
+
+### How we check users:
+1. **Signup**: When a user signs up, we save their **Email** and **Password** safely in our database.
+2. **Login**: When a user tries to log in, we check if their **Email** and **Password** match what we have.
+   - If it matches -> **Access Granted!** ✅
+   - If it is wrong -> **Access Denied!** ❌
+
+We use **JWT (JSON Web Tokens)** to give users a "digital pass" so they stay logged in while using the app.
+
 # 🌟 Key Features
 🧑‍🏫 Faculty load & availability management
 
