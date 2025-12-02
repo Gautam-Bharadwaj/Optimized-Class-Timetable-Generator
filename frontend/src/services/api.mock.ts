@@ -5,7 +5,6 @@ import { Department } from '../features/departments/department.types';
 import { Faculty } from '../features/faculty/faculty.types';
 import { Classroom } from '../features/classrooms/classroom.types';
 import { Subject } from '../features/subjects/subject.types';
-import { Timetable } from '../features/timetable/timetable.types';
 
 // Mock data
 export const mockDepartments: Department[] = [
@@ -128,7 +127,7 @@ export const mockCrud = {
         return undefined;
     },
 
-    delete: async (data: any[], id: number): Promise<void> => {
+    delete: async (_data: any[], _id: number): Promise<void> => {
         await mockApiCall(null);
     },
 };
