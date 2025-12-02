@@ -5,16 +5,19 @@ export const authApi = {
         const response = await api.post('/auth/login', credentials);
         return response.data;
     },
-    signup: async (userData) => {
-        const response = await api.post('/auth/signup', userData);
+    register: async (userData) => {
+        const response = await api.post('/auth/register', userData);
         return response.data;
     },
+    // Logout is handled client-side by removing token
     logout: async () => {
-        const response = await api.post('/auth/logout');
-        return response.data;
+        // Optional: Call backend if you implement a blacklist
+        return Promise.resolve();
     },
+    // Optional: Implement /auth/me in backend if needed
     getCurrentUser: async () => {
-        const response = await api.get('/auth/me');
-        return response.data;
+        // const response = await api.get('/auth/me');
+        // return response.data;
+        return Promise.resolve(null);
     },
 };

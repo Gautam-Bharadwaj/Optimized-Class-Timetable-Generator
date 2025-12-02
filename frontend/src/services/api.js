@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { API_URL, API_TIMEOUT, TOKEN_KEY, ENABLE_DEBUG } from '../utils/constants';
+import { API_URL, API_TIMEOUT, TOKEN_KEY, ENABLE_DEBUG, API_AUTH_KEY } from '../utils/constants';
 import { handleApiError, notifyError } from './api.errors';
 
 // Create axios instance with configuration
@@ -9,6 +9,7 @@ const api = axios.create({
     withCredentials: true,
     headers: {
         'Content-Type': 'application/json',
+        'apiauthkey': API_AUTH_KEY
     },
 });
 
