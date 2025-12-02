@@ -1,59 +1,113 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Card from '../../components/ui/Card';
 import Button from '../../components/ui/Button';
 import Table from '../../components/ui/Table';
 import Modal from '../../components/ui/Modal';
 import Input from '../../components/ui/Input';
+import { departmentApi } from './department.api';
+import { Loader2, Trash2, Edit2 } from 'lucide-react';
 
 const DepartmentManagement = () => {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [formData, setFormData] = useState({ name: '', code: '', hod: '' });
+    const [departments, setDepartments] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [submitting, setSubmitting] = useState(false);
 
-    const departments = [
-        { id: 1, name: 'Computer Science & Engineering', code: 'CSE', hod: 'Dr. John Doe', faculty: 12, students: 240 },
-        { id: 2, name: 'Electronics & Communication', code: 'ECE', hod: 'Dr. Jane Smith', faculty: 10, students: 200 },
-        { id: 3, name: 'Mechanical Engineering', code: 'MECH', hod: 'Dr. Bob Johnson', faculty: 8, students: 160 },
-    ];
+    useEffect(() => {
+        fetchDepartments();
+    }, []);
+
+    const fetchDepartments = async () => {
+        try {
+            setLoading(true);
+            const data = await departmentApi.getAll();
+            setDepartments(data);
+        } catch (error) {
+            console.error("Failed to fetch departments", error);
+        } finally {
+            setLoading(false);
+        }
+    };
 
     const columns = [
         { key: 'code', header: 'Code' },
         { key: 'name', header: 'Department Name' },
         { key: 'hod', header: 'Head of Department' },
-        { key: 'faculty', header: 'Faculty Count' },
-        { key: 'students', header: 'Students' },
+        {
+            key: 'facultyCount',
+            header: 'Faculty Count',
+            render: (value, row) => row._count?.faculties || 0
+        },
+        {
+            key: 'studentCount',
+            header: 'Students',
+            render: (value, row) => row._count?.students || 0
+        },
         {
             key: 'actions',
             header: 'Actions',
-            render: () => (
+            render: (value, row) => (
                 <div className="flex gap-2">
-                    <Button size="sm" variant="secondary">Edit</Button>
-                    <Button size="sm" variant="danger">Delete</Button>
+                    <Button size="sm" variant="secondary" className="p-2">
+                        <Edit2 className="w-4 h-4" />
+                    </Button>
+                    <Button size="sm" variant="danger" className="p-2" onClick={() => handleDelete(row.id)}>
+                        <Trash2 className="w-4 h-4" />
+                    </Button>
                 </div>
             ),
         },
     ];
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
-        console.log('Form submitted:', formData);
-        setIsModalOpen(false);
-        setFormData({ name: '', code: '', hod: '' });
+        setSubmitting(true);
+        try {
+            await departmentApi.create(formData);
+            setIsModalOpen(false);
+            setFormData({ name: '', code: '', hod: '' });
+            fetchDepartments();
+        } catch (error) {
+            console.error("Failed to create department", error);
+            alert("Failed to create department");
+        } finally {
+            setSubmitting(false);
+        }
+    };
+
+    const handleDelete = async (id) => {
+        if (window.confirm("Are you sure you want to delete this department?")) {
+            try {
+                await departmentApi.delete(id);
+                fetchDepartments();
+            } catch (error) {
+                console.error("Failed to delete department", error);
+                alert("Failed to delete department");
+            }
+        }
     };
 
     return (
         <div className="space-y-6">
             <div className="flex justify-between items-center">
                 <div>
-                    <h1 className="text-3xl font-bold text-gray-900">Department Management</h1>
-                    <p className="text-gray-600 mt-1">Manage academic departments</p>
+                    <h1 className="text-3xl font-bold text-slate-900">Department Management</h1>
+                    <p className="text-slate-600 mt-1">Manage academic departments</p>
                 </div>
-                <Button onClick={() => setIsModalOpen(true)}>
-                    + Add Department
+                <Button onClick={() => setIsModalOpen(true)} className="flex items-center gap-2">
+                    <span>+ Add Department</span>
                 </Button>
             </div>
 
             <Card>
-                <Table columns={columns} data={departments} />
+                {loading ? (
+                    <div className="flex justify-center py-12">
+                        <Loader2 className="w-8 h-8 animate-spin text-blue-600" />
+                    </div>
+                ) : (
+                    <Table columns={columns} data={departments} />
+                )}
             </Card>
 
             <Modal
@@ -65,7 +119,9 @@ const DepartmentManagement = () => {
                         <Button variant="secondary" onClick={() => setIsModalOpen(false)}>
                             Cancel
                         </Button>
-                        <Button onClick={handleSubmit}>Save Department</Button>
+                        <Button onClick={handleSubmit} disabled={submitting}>
+                            {submitting ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Save Department'}
+                        </Button>
                     </>
                 }
             >

@@ -1,9 +1,11 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Card from '../../components/ui/Card';
 import Button from '../../components/ui/Button';
 import Table from '../../components/ui/Table';
 import Modal from '../../components/ui/Modal';
 import Input from '../../components/ui/Input';
+import { classroomApi } from './classroom.api';
+import { Loader2, Trash2, Edit2 } from 'lucide-react';
 
 const ClassroomManagement = () => {
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -11,62 +13,110 @@ const ClassroomManagement = () => {
         name: '',
         capacity: '',
         type: '',
-        department: '',
+        departmentId: '', // Changed to ID
     });
+    const [classrooms, setClassrooms] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [submitting, setSubmitting] = useState(false);
 
-    const classrooms = [
-        { id: 1, name: 'CSE-Lab-1', capacity: 60, type: 'Lab', department: 'CSE', status: 'Available' },
-        { id: 2, name: 'Lecture Hall A', capacity: 120, type: 'Lecture', department: 'General', status: 'Available' },
-        { id: 3, name: 'ECE-Lab-2', capacity: 50, type: 'Lab', department: 'ECE', status: 'Occupied' },
-    ];
+    useEffect(() => {
+        fetchClassrooms();
+    }, []);
+
+    const fetchClassrooms = async () => {
+        try {
+            setLoading(true);
+            const data = await classroomApi.getAll();
+            setClassrooms(data);
+        } catch (error) {
+            console.error("Failed to fetch classrooms", error);
+        } finally {
+            setLoading(false);
+        }
+    };
 
     const columns = [
         { key: 'name', header: 'Classroom Name' },
         { key: 'capacity', header: 'Capacity' },
         { key: 'type', header: 'Type' },
-        { key: 'department', header: 'Department' },
         {
-            key: 'status',
-            header: 'Status',
-            render: (value) => (
-                <span className={`px-2 py-1 rounded text-xs font-medium ${value === 'Available' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'
-                    }`}>
-                    {value}
-                </span>
-            ),
+            key: 'department',
+            header: 'Department',
+            render: (value, row) => row.department?.code || '-'
         },
         {
             key: 'actions',
             header: 'Actions',
-            render: () => (
+            render: (value, row) => (
                 <div className="flex gap-2">
-                    <Button size="sm" variant="secondary">Edit</Button>
-                    <Button size="sm" variant="danger">Delete</Button>
+                    <Button size="sm" variant="secondary" className="p-2">
+                        <Edit2 className="w-4 h-4" />
+                    </Button>
+                    <Button size="sm" variant="danger" className="p-2" onClick={() => handleDelete(row.id)}>
+                        <Trash2 className="w-4 h-4" />
+                    </Button>
                 </div>
             ),
         },
     ];
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
-        console.log('Form submitted:', formData);
-        setIsModalOpen(false);
+        setSubmitting(true);
+        try {
+            const payload = {
+                ...formData,
+                capacity: parseInt(formData.capacity)
+            };
+            await classroomApi.create(payload);
+            setIsModalOpen(false);
+            setFormData({
+                name: '',
+                capacity: '',
+                type: '',
+                departmentId: '',
+            });
+            fetchClassrooms();
+        } catch (error) {
+            console.error("Failed to create classroom", error);
+            alert("Failed to create classroom");
+        } finally {
+            setSubmitting(false);
+        }
+    };
+
+    const handleDelete = async (id) => {
+        if (window.confirm("Are you sure you want to delete this classroom?")) {
+            try {
+                await classroomApi.delete(id);
+                fetchClassrooms();
+            } catch (error) {
+                console.error("Failed to delete classroom", error);
+                alert("Failed to delete classroom");
+            }
+        }
     };
 
     return (
         <div className="space-y-6">
             <div className="flex justify-between items-center">
                 <div>
-                    <h1 className="text-3xl font-bold text-gray-900">Classroom Management</h1>
-                    <p className="text-gray-600 mt-1">Manage classrooms and laboratories</p>
+                    <h1 className="text-3xl font-bold text-slate-900">Classroom Management</h1>
+                    <p className="text-slate-600 mt-1">Manage classrooms and laboratories</p>
                 </div>
-                <Button onClick={() => setIsModalOpen(true)}>
-                    + Add Classroom
+                <Button onClick={() => setIsModalOpen(true)} className="flex items-center gap-2">
+                    <span>+ Add Classroom</span>
                 </Button>
             </div>
 
             <Card>
-                <Table columns={columns} data={classrooms} />
+                {loading ? (
+                    <div className="flex justify-center py-12">
+                        <Loader2 className="w-8 h-8 animate-spin text-blue-600" />
+                    </div>
+                ) : (
+                    <Table columns={columns} data={classrooms} />
+                )}
             </Card>
 
             <Modal
@@ -78,7 +128,9 @@ const ClassroomManagement = () => {
                         <Button variant="secondary" onClick={() => setIsModalOpen(false)}>
                             Cancel
                         </Button>
-                        <Button onClick={handleSubmit}>Save Classroom</Button>
+                        <Button onClick={handleSubmit} disabled={submitting}>
+                            {submitting ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Save Classroom'}
+                        </Button>
                     </>
                 }
             >
@@ -106,10 +158,10 @@ const ClassroomManagement = () => {
                         required
                     />
                     <Input
-                        label="Department"
-                        value={formData.department}
-                        onChange={(e) => setFormData({ ...formData, department: e.target.value })}
-                        placeholder="e.g., CSE"
+                        label="Department ID"
+                        value={formData.departmentId}
+                        onChange={(e) => setFormData({ ...formData, departmentId: e.target.value })}
+                        placeholder="e.g., 1"
                         required
                     />
                 </form>
