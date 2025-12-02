@@ -8,10 +8,21 @@ const Login = () => {
     const login = useAuthStore((state) => state.login);
     const navigate = useNavigate();
 
-    const handleSubmit = (e: React.FormEvent) => {
+    const handleLogin = (e: React.FormEvent) => {
         e.preventDefault();
-        // Simulate login
-        login({ email }, 'dummy-token');
+        // Mock login - replace with actual API call
+        login(
+            {
+                id: 1,
+                name: 'Test User',
+                email,
+                role: 'SUPERADMIN' as any,
+                isActive: true,
+                createdAt: new Date().toISOString(),
+                updatedAt: new Date().toISOString(),
+            },
+            'mock-token'
+        );
         navigate('/dashboard');
     };
 
@@ -19,7 +30,7 @@ const Login = () => {
         <div className="min-h-screen flex items-center justify-center bg-gray-100">
             <div className="bg-white p-8 rounded shadow-md w-96">
                 <h2 className="text-2xl font-bold mb-6 text-center">Login</h2>
-                <form onSubmit={handleSubmit}>
+                <form className="mt-8 space-y-6" onSubmit={handleLogin}>
                     <div className="mb-4">
                         <label className="block text-gray-700 mb-2">Email</label>
                         <input

@@ -1,10 +1,11 @@
 import { create } from 'zustand';
+import { User } from '../types/types';
 
 interface AuthState {
-    user: any | null;
+    user: User | null;
     token: string | null;
     isAuthenticated: boolean;
-    login: (user: any, token: string) => void;
+    login: (user: User, token: string) => void;
     logout: () => void;
 }
 

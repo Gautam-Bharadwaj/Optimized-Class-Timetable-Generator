@@ -12,6 +12,8 @@ import ClassroomManagement from '../features/classrooms/ClassroomManagement';
 import SubjectManagement from '../features/subjects/SubjectManagement';
 import TimetableGenerator from '../features/timetable/TimetableGenerator';
 import { useAuth } from '../hooks/useAuth';
+import RoleGuard from '../components/auth/RoleGuard';
+import { Role } from '../types/types';
 
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
     const { isAuthenticated } = useAuth();
@@ -27,13 +29,16 @@ const AppRoutes = () => {
                 <Route path="/signup" element={<Signup />} />
 
                 {/* Protected Dashboard Routes */}
+                {/* Protected Dashboard Routes */}
                 <Route
                     path="/dashboard"
                     element={
                         <ProtectedRoute>
-                            <DashboardLayout>
-                                <Dashboard />
-                            </DashboardLayout>
+                            <RoleGuard allowedRoles={[Role.SUPERADMIN, Role.TIMETABLE_ADMIN, Role.HOD, Role.FACULTY, Role.VIEWER]}>
+                                <DashboardLayout>
+                                    <Dashboard />
+                                </DashboardLayout>
+                            </RoleGuard>
                         </ProtectedRoute>
                     }
                 />
@@ -41,9 +46,11 @@ const AppRoutes = () => {
                     path="/dashboard/departments"
                     element={
                         <ProtectedRoute>
-                            <DashboardLayout>
-                                <DepartmentManagement />
-                            </DashboardLayout>
+                            <RoleGuard allowedRoles={[Role.SUPERADMIN, Role.TIMETABLE_ADMIN]}>
+                                <DashboardLayout>
+                                    <DepartmentManagement />
+                                </DashboardLayout>
+                            </RoleGuard>
                         </ProtectedRoute>
                     }
                 />
@@ -51,9 +58,11 @@ const AppRoutes = () => {
                     path="/dashboard/faculty"
                     element={
                         <ProtectedRoute>
-                            <DashboardLayout>
-                                <FacultyManagement />
-                            </DashboardLayout>
+                            <RoleGuard allowedRoles={[Role.SUPERADMIN, Role.TIMETABLE_ADMIN, Role.HOD]}>
+                                <DashboardLayout>
+                                    <FacultyManagement />
+                                </DashboardLayout>
+                            </RoleGuard>
                         </ProtectedRoute>
                     }
                 />
@@ -61,9 +70,11 @@ const AppRoutes = () => {
                     path="/dashboard/classrooms"
                     element={
                         <ProtectedRoute>
-                            <DashboardLayout>
-                                <ClassroomManagement />
-                            </DashboardLayout>
+                            <RoleGuard allowedRoles={[Role.SUPERADMIN, Role.TIMETABLE_ADMIN]}>
+                                <DashboardLayout>
+                                    <ClassroomManagement />
+                                </DashboardLayout>
+                            </RoleGuard>
                         </ProtectedRoute>
                     }
                 />
@@ -71,9 +82,11 @@ const AppRoutes = () => {
                     path="/dashboard/subjects"
                     element={
                         <ProtectedRoute>
-                            <DashboardLayout>
-                                <SubjectManagement />
-                            </DashboardLayout>
+                            <RoleGuard allowedRoles={[Role.SUPERADMIN, Role.TIMETABLE_ADMIN, Role.HOD]}>
+                                <DashboardLayout>
+                                    <SubjectManagement />
+                                </DashboardLayout>
+                            </RoleGuard>
                         </ProtectedRoute>
                     }
                 />
@@ -81,9 +94,11 @@ const AppRoutes = () => {
                     path="/dashboard/timetable"
                     element={
                         <ProtectedRoute>
-                            <DashboardLayout>
-                                <TimetableGenerator />
-                            </DashboardLayout>
+                            <RoleGuard allowedRoles={[Role.SUPERADMIN, Role.TIMETABLE_ADMIN, Role.HOD, Role.FACULTY]}>
+                                <DashboardLayout>
+                                    <TimetableGenerator />
+                                </DashboardLayout>
+                            </RoleGuard>
                         </ProtectedRoute>
                     }
                 />
@@ -91,9 +106,11 @@ const AppRoutes = () => {
                     path="/settings"
                     element={
                         <ProtectedRoute>
-                            <DashboardLayout>
-                                <Settings />
-                            </DashboardLayout>
+                            <RoleGuard allowedRoles={[Role.SUPERADMIN, Role.TIMETABLE_ADMIN, Role.HOD, Role.FACULTY, Role.VIEWER]}>
+                                <DashboardLayout>
+                                    <Settings />
+                                </DashboardLayout>
+                            </RoleGuard>
                         </ProtectedRoute>
                     }
                 />
