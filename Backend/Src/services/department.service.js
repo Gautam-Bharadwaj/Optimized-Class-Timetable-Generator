@@ -4,7 +4,7 @@ const getAllDepartments = async () => {
     return await prisma.department.findMany({
         include: {
             _count: {
-                select: { faculties: true, students: true, classrooms: true, subjects: true }
+                select: { faculties: true, classrooms: true, subjects: true }
             }
         }
     });
