@@ -2,8 +2,8 @@
 Intelligent Scheduling for Smarter Campuses
 
 ## 🚀 Live Demo
-**Frontend:** [https://optimized-timetable-frontend.vercel.app](https://optimized-timetable-frontend.vercel.app)  
-**Backend API:** [https://optimized-class-timetable-generator-ochre.vercel.app](https://optimized-class-timetable-generator-ochre.vercel.app)
+ [https://optimized-timetable-frontend.vercel.app](https://optimized-timetable-frontend.vercel.app)  
+
 
 
 # 🧩 The Problem Statement
