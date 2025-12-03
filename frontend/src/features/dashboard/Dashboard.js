@@ -1,12 +1,52 @@
+import { useState, useEffect } from 'react';
 import Card from '../../components/ui/Card';
 import { Link } from 'react-router-dom';
+import { departmentApi } from '../departments/department.api';
+import { facultyApi } from '../faculty/faculty.api';
+import { classroomApi } from '../classrooms/classroom.api';
+import { subjectApi } from '../subjects/subject.api';
+import { Loader2 } from 'lucide-react';
 
 const Dashboard = () => {
+    const [statsData, setStatsData] = useState({
+        departments: 0,
+        faculty: 0,
+        classrooms: 0,
+        subjects: 0
+    });
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        const fetchStats = async () => {
+            try {
+                const [departments, faculty, classrooms, subjects] = await Promise.all([
+                    departmentApi.getAll(),
+                    facultyApi.getAll(),
+                    classroomApi.getAll(),
+                    subjectApi.getAll()
+                ]);
+
+                setStatsData({
+                    departments: departments.length,
+                    faculty: faculty.length,
+                    classrooms: classrooms.length,
+                    subjects: subjects.length
+                });
+            } catch (error) {
+                console.error("Failed to fetch dashboard stats", error);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchStats();
+    }, []);
+
     const stats = [
-        { label: 'Total Departments', value: '8', icon: '🏢', color: 'bg-blue-500' },
-        { label: 'Faculty Members', value: '45', icon: '👨‍🏫', color: 'bg-green-500' },
-        { label: 'Classrooms', value: '32', icon: '🏫', color: 'bg-purple-500' },
-        { label: 'Subjects', value: '120', icon: '📚', color: 'bg-orange-500' },
+        { label: 'Total Departments', value: statsData.departments, icon: '🏢', color: 'bg-blue-500' },
+        { label: 'Faculty Members', value: statsData.faculty, icon: '👨‍🏫', color: 'bg-green-500' },
+        { label: 'Classrooms', value: statsData.classrooms, icon: '🏫', color: 'bg-purple-500' },
+        { label: 'Subjects', value: statsData.subjects, icon: '📚', color: 'bg-orange-500' },
     ];
 
     const quickActions = [
@@ -14,6 +54,14 @@ const Dashboard = () => {
         { label: 'Add Faculty', path: '/dashboard/faculty', icon: '➕', color: 'bg-green-600' },
         { label: 'Manage Subjects', path: '/dashboard/subjects', icon: '📝', color: 'bg-purple-600' },
     ];
+
+    if (loading) {
+        return (
+            <div className="flex justify-center items-center h-full min-h-[400px]">
+                <Loader2 className="w-8 h-8 animate-spin text-blue-600" />
+            </div>
+        );
+    }
 
     return (
         <div className="space-y-6">
