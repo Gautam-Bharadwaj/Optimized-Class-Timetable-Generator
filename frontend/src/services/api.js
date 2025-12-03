@@ -3,6 +3,7 @@ import { API_URL, API_TIMEOUT, TOKEN_KEY, ENABLE_DEBUG, API_AUTH_KEY } from '../
 import { handleApiError, notifyError } from './api.errors';
 
 // Create axios instance with configuration
+console.log('Initializing API with URL:', API_URL);
 const api = axios.create({
     baseURL: API_URL,
     timeout: API_TIMEOUT,
