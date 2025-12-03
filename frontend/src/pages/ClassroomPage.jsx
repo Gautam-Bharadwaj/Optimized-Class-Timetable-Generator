@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
-import { classroomApi } from '../features/classrooms/classroom.api';
-import { departmentApi } from '../features/departments/department.api';
+import { classroomApi } from '../api/classroom.api';
+import { departmentApi } from '../api/department.api';
 import TableView from '../components/TableView';
 import Loader from '../components/Loader';
 import Modal from '../components/ui/Modal';

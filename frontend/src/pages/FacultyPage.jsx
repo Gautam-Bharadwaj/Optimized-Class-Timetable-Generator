@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
-import { facultyApi } from '../features/faculty/faculty.api';
-import { departmentApi } from '../features/departments/department.api';
+import { facultyApi } from '../api/faculty.api';
+import { departmentApi } from '../api/department.api';
 import TableView from '../components/TableView';
 import Loader from '../components/Loader';
 import Modal from '../components/ui/Modal';

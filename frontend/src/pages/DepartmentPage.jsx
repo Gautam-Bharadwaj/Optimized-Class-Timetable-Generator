@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { departmentApi } from '../features/departments/department.api';
+import { departmentApi } from '../api/department.api';
 import TableView from '../components/TableView';
 import Loader from '../components/Loader';
 import Modal from '../components/ui/Modal';

@@ -1,9 +1,9 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { departmentApi } from '../features/departments/department.api';
-import { facultyApi } from '../features/faculty/faculty.api';
-import { classroomApi } from '../features/classrooms/classroom.api';
-import { subjectApi } from '../features/subjects/subject.api';
+import { departmentApi } from '../api/department.api';
+import { facultyApi } from '../api/faculty.api';
+import { classroomApi } from '../api/classroom.api';
+import { subjectApi } from '../api/subject.api';
 import Loader from '../components/Loader';
 
 const Dashboard = () => {

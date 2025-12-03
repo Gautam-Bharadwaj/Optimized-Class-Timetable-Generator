@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
-import { departmentApi } from '../features/departments/department.api';
-import { timetableApi } from '../features/timetable/timetable.api';
+import { departmentApi } from '../api/department.api';
+import { timetableApi } from '../api/timetable.api';
 import Loader from '../components/Loader';
 import Button from '../components/ui/Button';
 import Card from '../components/ui/Card';

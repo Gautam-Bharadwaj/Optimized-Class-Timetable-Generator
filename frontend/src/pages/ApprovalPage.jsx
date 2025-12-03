@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { timetableApi } from '../features/timetable/timetable.api';
+import { timetableApi } from '../api/timetable.api';
 import TableView from '../components/TableView';
 import Loader from '../components/Loader';
 import Button from '../components/ui/Button';
@@ -75,8 +75,8 @@ const ApprovalPage = () => {
             header: 'Status',
             render: (val) => (
                 <span className={`px-2 py-1 rounded-full text-xs font-medium ${val === 'APPROVED' ? 'bg-green-100 text-green-800' :
-                        val === 'REJECTED' ? 'bg-red-100 text-red-800' :
-                            'bg-yellow-100 text-yellow-800'
+                    val === 'REJECTED' ? 'bg-red-100 text-red-800' :
+                        'bg-yellow-100 text-yellow-800'
                     }`}>
                     {val}
                 </span>
