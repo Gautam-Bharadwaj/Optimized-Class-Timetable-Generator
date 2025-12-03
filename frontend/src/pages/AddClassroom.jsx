@@ -46,7 +46,8 @@ const AddClassroom = () => {
             navigate('/dashboard/classrooms');
         } catch (error) {
             console.error("Failed to save classroom", error);
-            alert("Failed to save classroom");
+            const message = error.response?.data?.message || error.message || "Failed to save classroom";
+            alert(`Error: ${message}`);
         } finally {
             setSubmitting(false);
         }

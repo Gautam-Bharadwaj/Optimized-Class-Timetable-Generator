@@ -49,7 +49,8 @@ const AddSubject = () => {
             navigate('/dashboard/subjects');
         } catch (error) {
             console.error("Failed to save subject", error);
-            alert("Failed to save subject");
+            const message = error.response?.data?.message || error.message || "Failed to save subject";
+            alert(`Error: ${message}`);
         } finally {
             setSubmitting(false);
         }

@@ -45,7 +45,8 @@ const AddFaculty = () => {
             navigate('/dashboard/faculty');
         } catch (error) {
             console.error("Failed to save faculty", error);
-            alert("Failed to save faculty");
+            const message = error.response?.data?.message || error.message || "Failed to save faculty";
+            alert(`Error: ${message}`);
         } finally {
             setSubmitting(false);
         }
