@@ -1,39 +1,51 @@
 import { useState, useEffect } from 'react';
-import Card from '../../components/ui/Card';
-import Button from '../../components/ui/Button';
-import Table from '../../components/ui/Table';
-import Modal from '../../components/ui/Modal';
-import Input from '../../components/ui/Input';
-import { classroomApi } from './classroom.api';
-import { Loader2, Trash2, Edit2 } from 'lucide-react';
+import { classroomApi } from '../features/classrooms/classroom.api';
+import { departmentApi } from '../features/departments/department.api';
+import TableView from '../components/TableView';
+import Loader from '../components/Loader';
+import Modal from '../components/ui/Modal';
+import Input from '../components/ui/Input';
+import Button from '../components/ui/Button';
+import { Loader2 } from 'lucide-react';
 
-const ClassroomManagement = () => {
+const ClassroomPage = () => {
+    const [classrooms, setClassrooms] = useState([]);
+    const [departments, setDepartments] = useState([]);
+    const [loading, setLoading] = useState(true);
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const [submitting, setSubmitting] = useState(false);
+    const [editingId, setEditingId] = useState(null);
     const [formData, setFormData] = useState({
         name: '',
-        capacity: '',
-        type: '',
-        departmentId: '', // Changed to ID
+        year: '',
+        semester: '',
+        departmentId: '',
     });
-    const [classrooms, setClassrooms] = useState([]);
-    const [loading, setLoading] = useState(true);
-    const [submitting, setSubmitting] = useState(false);
-
-    const [editingId, setEditingId] = useState(null);
 
     useEffect(() => {
-        fetchClassrooms();
+        const fetchData = async () => {
+            try {
+                const [classroomData, deptData] = await Promise.all([
+                    classroomApi.getAll(),
+                    departmentApi.getAll()
+                ]);
+                setClassrooms(classroomData);
+                setDepartments(deptData);
+            } catch (error) {
+                console.error("Failed to fetch data", error);
+            } finally {
+                setLoading(false);
+            }
+        };
+        fetchData();
     }, []);
 
     const fetchClassrooms = async () => {
         try {
-            setLoading(true);
             const data = await classroomApi.getAll();
             setClassrooms(data);
         } catch (error) {
             console.error("Failed to fetch classrooms", error);
-        } finally {
-            setLoading(false);
         }
     };
 
@@ -45,32 +57,30 @@ const ClassroomManagement = () => {
             key: 'department',
             header: 'Department',
             render: (value, row) => row.department?.code || '-'
-        },
-        {
-            key: 'actions',
-            header: 'Actions',
-            render: (value, row) => (
-                <div className="flex gap-2">
-                    <Button size="sm" variant="secondary" className="p-2" onClick={() => handleEdit(row)}>
-                        <Edit2 className="w-4 h-4" />
-                    </Button>
-                    <Button size="sm" variant="danger" className="p-2" onClick={() => handleDelete(row.id)}>
-                        <Trash2 className="w-4 h-4" />
-                    </Button>
-                </div>
-            ),
-        },
+        }
     ];
 
-    const handleEdit = (classroom) => {
-        setEditingId(classroom.id);
+    const handleEdit = (row) => {
+        setEditingId(row.id);
         setFormData({
-            name: classroom.name,
-            year: classroom.year,
-            semester: classroom.semester,
-            departmentId: classroom.departmentId,
+            name: row.name,
+            year: row.year,
+            semester: row.semester,
+            departmentId: row.departmentId,
         });
         setIsModalOpen(true);
+    };
+
+    const handleDelete = async (row) => {
+        if (window.confirm(`Are you sure you want to delete ${row.name}?`)) {
+            try {
+                await classroomApi.delete(row.id);
+                fetchClassrooms();
+            } catch (error) {
+                console.error("Failed to delete classroom", error);
+                alert("Failed to delete classroom");
+            }
+        }
     };
 
     const handleSubmit = async (e) => {
@@ -90,32 +100,13 @@ const ClassroomManagement = () => {
                 await classroomApi.create(payload);
             }
 
-            setIsModalOpen(false);
-            setFormData({
-                name: '',
-                year: '',
-                semester: '',
-                departmentId: '',
-            });
-            setEditingId(null);
+            handleCloseModal();
             fetchClassrooms();
         } catch (error) {
             console.error("Failed to save classroom", error);
             alert("Failed to save classroom");
         } finally {
             setSubmitting(false);
-        }
-    };
-
-    const handleDelete = async (id) => {
-        if (window.confirm("Are you sure you want to delete this classroom?")) {
-            try {
-                await classroomApi.delete(id);
-                fetchClassrooms();
-            } catch (error) {
-                console.error("Failed to delete classroom", error);
-                alert("Failed to delete classroom");
-            }
         }
     };
 
@@ -130,27 +121,26 @@ const ClassroomManagement = () => {
         setEditingId(null);
     };
 
+    if (loading) return <Loader />;
+
     return (
         <div className="space-y-6">
             <div className="flex justify-between items-center">
                 <div>
-                    <h1 className="text-3xl font-bold text-slate-900">Classroom Management</h1>
-                    <p className="text-slate-600 mt-1">Manage classrooms and laboratories</p>
+                    <h1 className="text-2xl font-bold text-gray-900">Classrooms</h1>
+                    <p className="text-gray-600">Manage classrooms and laboratories</p>
                 </div>
-                <Button onClick={() => { setEditingId(null); setFormData({ name: '', year: '', semester: '', departmentId: '' }); setIsModalOpen(true); }} className="flex items-center gap-2">
-                    <span>+ Add Classroom</span>
+                <Button onClick={() => setIsModalOpen(true)}>
+                    + Add Classroom
                 </Button>
             </div>
 
-            <Card>
-                {loading ? (
-                    <div className="flex justify-center py-12">
-                        <Loader2 className="w-8 h-8 animate-spin text-blue-600" />
-                    </div>
-                ) : (
-                    <Table columns={columns} data={classrooms} />
-                )}
-            </Card>
+            <TableView
+                columns={columns}
+                data={classrooms}
+                onEdit={handleEdit}
+                onDelete={handleDelete}
+            />
 
             <Modal
                 isOpen={isModalOpen}
@@ -158,11 +148,9 @@ const ClassroomManagement = () => {
                 title={editingId ? "Edit Classroom" : "Add New Classroom"}
                 footer={
                     <>
-                        <Button variant="secondary" onClick={handleCloseModal}>
-                            Cancel
-                        </Button>
+                        <Button variant="secondary" onClick={handleCloseModal}>Cancel</Button>
                         <Button onClick={handleSubmit} disabled={submitting}>
-                            {submitting ? <Loader2 className="w-4 h-4 animate-spin" /> : (editingId ? 'Update Classroom' : 'Save Classroom')}
+                            {submitting ? <Loader2 className="w-4 h-4 animate-spin" /> : (editingId ? 'Update' : 'Save')}
                         </Button>
                     </>
                 }
@@ -191,17 +179,24 @@ const ClassroomManagement = () => {
                         placeholder="e.g., 3"
                         required
                     />
-                    <Input
-                        label="Department ID"
-                        value={formData.departmentId}
-                        onChange={(e) => setFormData({ ...formData, departmentId: e.target.value })}
-                        placeholder="e.g., 1"
-                        required
-                    />
+                    <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">Department</label>
+                        <select
+                            className="w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                            value={formData.departmentId}
+                            onChange={(e) => setFormData({ ...formData, departmentId: e.target.value })}
+                            required
+                        >
+                            <option value="">Select Department</option>
+                            {departments.map(dept => (
+                                <option key={dept.id} value={dept.id}>{dept.name} ({dept.code})</option>
+                            ))}
+                        </select>
+                    </div>
                 </form>
             </Modal>
         </div>
     );
 };
 
-export default ClassroomManagement;
+export default ClassroomPage;
