@@ -11,11 +11,10 @@ const AddClassroom = () => {
     const [submitting, setSubmitting] = useState(false);
     const [departments, setDepartments] = useState([]);
     const [formData, setFormData] = useState({
-        roomId: '',
-        capacity: '',
-        departmentId: '',
-        type: 'LECTURE_HALL',
-        facilities: ''
+        name: '',
+        year: '',
+        semester: '',
+        departmentId: ''
     });
 
     useEffect(() => {
@@ -36,10 +35,10 @@ const AddClassroom = () => {
         setSubmitting(true);
         try {
             const payload = {
-                ...formData,
-                capacity: parseInt(formData.capacity),
-                departmentId: parseInt(formData.departmentId),
-                facilities: formData.facilities.split(',').map(f => f.trim()).filter(Boolean)
+                name: formData.name,
+                year: parseInt(formData.year),
+                semester: parseInt(formData.semester),
+                departmentId: parseInt(formData.departmentId)
             };
 
             await classroomApi.create(payload);
@@ -68,20 +67,31 @@ const AddClassroom = () => {
             <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
                 <form onSubmit={handleSubmit} className="space-y-6">
                     <Input
-                        label="Room ID/Number"
-                        value={formData.roomId}
-                        onChange={(e) => setFormData({ ...formData, roomId: e.target.value })}
+                        label="Classroom Name/Number"
+                        value={formData.name}
+                        onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                         placeholder="e.g., A-101"
                         required
                     />
-                    <Input
-                        label="Capacity"
-                        type="number"
-                        value={formData.capacity}
-                        onChange={(e) => setFormData({ ...formData, capacity: e.target.value })}
-                        placeholder="e.g., 60"
-                        required
-                    />
+
+                    <div className="grid grid-cols-2 gap-4">
+                        <Input
+                            label="Year"
+                            type="number"
+                            value={formData.year}
+                            onChange={(e) => setFormData({ ...formData, year: e.target.value })}
+                            placeholder="e.g., 2024"
+                            required
+                        />
+                        <Input
+                            label="Semester"
+                            type="number"
+                            value={formData.semester}
+                            onChange={(e) => setFormData({ ...formData, semester: e.target.value })}
+                            placeholder="e.g., 3"
+                            required
+                        />
+                    </div>
 
                     <div>
                         <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -101,29 +111,6 @@ const AddClassroom = () => {
                             ))}
                         </select>
                     </div>
-
-                    <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">
-                            Type
-                        </label>
-                        <select
-                            value={formData.type}
-                            onChange={(e) => setFormData({ ...formData, type: e.target.value })}
-                            className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                            required
-                        >
-                            <option value="LECTURE_HALL">Lecture Hall</option>
-                            <option value="LABORATORY">Laboratory</option>
-                            <option value="SEMINAR_HALL">Seminar Hall</option>
-                        </select>
-                    </div>
-
-                    <Input
-                        label="Facilities (comma separated)"
-                        value={formData.facilities}
-                        onChange={(e) => setFormData({ ...formData, facilities: e.target.value })}
-                        placeholder="e.g., Projector, Whiteboard, AC"
-                    />
 
                     <div className="flex justify-end gap-3 pt-4">
                         <Button type="button" variant="secondary" onClick={() => navigate('/dashboard/classrooms')}>

@@ -13,7 +13,7 @@ const AddFaculty = () => {
     const [formData, setFormData] = useState({
         name: '',
         email: '',
-        designation: '',
+        maxWeeklyLoad: '',
         departmentId: '',
         availableDays: ''
     });
@@ -36,9 +36,12 @@ const AddFaculty = () => {
         setSubmitting(true);
         try {
             const payload = {
-                ...formData,
+                name: formData.name,
+                email: formData.email,
+                maxWeeklyLoad: parseInt(formData.maxWeeklyLoad),
                 departmentId: parseInt(formData.departmentId),
-                availableDays: formData.availableDays.split(',').map(day => day.trim()).filter(Boolean)
+                // Send as array, backend should handle stringification or expect array
+                availableDays: JSON.stringify(formData.availableDays.split(',').map(day => day.trim()).filter(Boolean))
             };
 
             await facultyApi.create(payload);
@@ -82,10 +85,11 @@ const AddFaculty = () => {
                         required
                     />
                     <Input
-                        label="Designation"
-                        value={formData.designation}
-                        onChange={(e) => setFormData({ ...formData, designation: e.target.value })}
-                        placeholder="e.g., Professor"
+                        label="Max Weekly Load"
+                        type="number"
+                        value={formData.maxWeeklyLoad}
+                        onChange={(e) => setFormData({ ...formData, maxWeeklyLoad: e.target.value })}
+                        placeholder="e.g., 12"
                         required
                     />
 
