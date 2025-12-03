@@ -15,11 +15,14 @@ const SubjectManagement = () => {
         credits: '',
         type: '',
         lecturesPerWeek: '',
+        semester: '',
         departmentId: '', // Changed to ID
     });
     const [subjects, setSubjects] = useState([]);
     const [loading, setLoading] = useState(true);
     const [submitting, setSubmitting] = useState(false);
+
+    const [editingId, setEditingId] = useState(null);
 
     useEffect(() => {
         fetchSubjects();
@@ -42,7 +45,8 @@ const SubjectManagement = () => {
         { key: 'name', header: 'Subject Name' },
         { key: 'credits', header: 'Credits' },
         { key: 'type', header: 'Type' },
-        { key: 'lecturesPerWeek', header: 'Lectures/Week' },
+        { key: 'semester', header: 'Sem' },
+        { key: 'lecturesPerWeek', header: 'L/W' },
         {
             key: 'department',
             header: 'Department',
@@ -53,7 +57,7 @@ const SubjectManagement = () => {
             header: 'Actions',
             render: (value, row) => (
                 <div className="flex gap-2">
-                    <Button size="sm" variant="secondary" className="p-2">
+                    <Button size="sm" variant="secondary" className="p-2" onClick={() => handleEdit(row)}>
                         <Edit2 className="w-4 h-4" />
                     </Button>
                     <Button size="sm" variant="danger" className="p-2" onClick={() => handleDelete(row.id)}>
@@ -64,6 +68,20 @@ const SubjectManagement = () => {
         },
     ];
 
+    const handleEdit = (subject) => {
+        setEditingId(subject.id);
+        setFormData({
+            code: subject.code,
+            name: subject.name,
+            credits: subject.credits,
+            type: subject.type,
+            lecturesPerWeek: subject.lecturesPerWeek,
+            semester: subject.semester,
+            departmentId: subject.departmentId,
+        });
+        setIsModalOpen(true);
+    };
+
     const handleSubmit = async (e) => {
         e.preventDefault();
         setSubmitting(true);
@@ -71,9 +89,17 @@ const SubjectManagement = () => {
             const payload = {
                 ...formData,
                 credits: parseInt(formData.credits),
-                lecturesPerWeek: parseInt(formData.lecturesPerWeek)
+                lecturesPerWeek: parseInt(formData.lecturesPerWeek),
+                semester: parseInt(formData.semester),
+                departmentId: parseInt(formData.departmentId)
             };
-            await subjectApi.create(payload);
+
+            if (editingId) {
+                await subjectApi.update(editingId, payload);
+            } else {
+                await subjectApi.create(payload);
+            }
+
             setIsModalOpen(false);
             setFormData({
                 code: '',
@@ -81,12 +107,14 @@ const SubjectManagement = () => {
                 credits: '',
                 type: '',
                 lecturesPerWeek: '',
+                semester: '',
                 departmentId: '',
             });
+            setEditingId(null);
             fetchSubjects();
         } catch (error) {
-            console.error("Failed to create subject", error);
-            alert("Failed to create subject");
+            console.error("Failed to save subject", error);
+            alert("Failed to save subject");
         } finally {
             setSubmitting(false);
         }
@@ -104,6 +132,20 @@ const SubjectManagement = () => {
         }
     };
 
+    const handleCloseModal = () => {
+        setIsModalOpen(false);
+        setFormData({
+            code: '',
+            name: '',
+            credits: '',
+            type: '',
+            lecturesPerWeek: '',
+            semester: '',
+            departmentId: '',
+        });
+        setEditingId(null);
+    };
+
     return (
         <div className="space-y-6">
             <div className="flex justify-between items-center">
@@ -111,7 +153,7 @@ const SubjectManagement = () => {
                     <h1 className="text-3xl font-bold text-slate-900">Subject Management</h1>
                     <p className="text-slate-600 mt-1">Manage subjects and course catalog</p>
                 </div>
-                <Button onClick={() => setIsModalOpen(true)} className="flex items-center gap-2">
+                <Button onClick={() => { setEditingId(null); setFormData({ code: '', name: '', credits: '', type: '', lecturesPerWeek: '', semester: '', departmentId: '' }); setIsModalOpen(true); }} className="flex items-center gap-2">
                     <span>+ Add Subject</span>
                 </Button>
             </div>
@@ -128,15 +170,15 @@ const SubjectManagement = () => {
 
             <Modal
                 isOpen={isModalOpen}
-                onClose={() => setIsModalOpen(false)}
-                title="Add New Subject"
+                onClose={handleCloseModal}
+                title={editingId ? "Edit Subject" : "Add New Subject"}
                 footer={
                     <>
-                        <Button variant="secondary" onClick={() => setIsModalOpen(false)}>
+                        <Button variant="secondary" onClick={handleCloseModal}>
                             Cancel
                         </Button>
                         <Button onClick={handleSubmit} disabled={submitting}>
-                            {submitting ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Save Subject'}
+                            {submitting ? <Loader2 className="w-4 h-4 animate-spin" /> : (editingId ? 'Update Subject' : 'Save Subject')}
                         </Button>
                     </>
                 }
@@ -176,6 +218,14 @@ const SubjectManagement = () => {
                         type="number"
                         value={formData.lecturesPerWeek}
                         onChange={(e) => setFormData({ ...formData, lecturesPerWeek: e.target.value })}
+                        placeholder="e.g., 3"
+                        required
+                    />
+                    <Input
+                        label="Semester"
+                        type="number"
+                        value={formData.semester}
+                        onChange={(e) => setFormData({ ...formData, semester: e.target.value })}
                         placeholder="e.g., 3"
                         required
                     />

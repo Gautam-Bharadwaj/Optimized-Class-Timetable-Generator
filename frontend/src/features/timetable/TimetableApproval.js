@@ -35,7 +35,7 @@ const TimetableApproval = () => {
     const handleApprove = async () => {
         if (!timetable) return;
         try {
-            await timetableApi.approve({ timetableId: timetable.id });
+            await timetableApi.approve(timetable.id, 'APPROVED', 'Approved by admin');
             navigate('/dashboard/approvals');
         } catch (error) {
             console.error('Failed to approve timetable', error);
@@ -45,7 +45,7 @@ const TimetableApproval = () => {
     const handleReject = async () => {
         if (!timetable) return;
         try {
-            await timetableApi.reject(timetable.id, rejectComments);
+            await timetableApi.approve(timetable.id, 'REJECTED', rejectComments);
             setShowRejectModal(false);
             navigate('/dashboard/approvals');
         } catch (error) {
@@ -74,7 +74,6 @@ const TimetableApproval = () => {
                 timetable={timetable}
                 onApprove={handleApprove}
                 onReject={() => setShowRejectModal(true)}
-                onExport={(format) => timetableApi.export(timetable.id, format)}
             />
 
             <Modal

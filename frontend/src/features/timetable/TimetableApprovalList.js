@@ -24,10 +24,10 @@ const TimetableApprovalList = () => {
             // For now, we'll fetch by department if user has one, or fetch all
             let data = [];
             if (user?.departmentId) {
-                data = await timetableApi.getByDepartment(user.departmentId);
+                data = await timetableApi.getAll(user.departmentId);
             } else {
                 // Mock: fetch for a default department or implement getAll endpoint
-                data = await timetableApi.getByDepartment(1);
+                data = await timetableApi.getAll(1);
             }
             // Filter for pending timetables
             setTimetables(data.filter(t => t.status === TimetableStatus.PENDING));

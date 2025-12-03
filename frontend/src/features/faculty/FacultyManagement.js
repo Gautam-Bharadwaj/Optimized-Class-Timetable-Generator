@@ -20,6 +20,8 @@ const FacultyManagement = () => {
     const [loading, setLoading] = useState(true);
     const [submitting, setSubmitting] = useState(false);
 
+    const [editingId, setEditingId] = useState(null);
+
     useEffect(() => {
         fetchFaculty();
     }, []);
@@ -55,7 +57,7 @@ const FacultyManagement = () => {
             header: 'Actions',
             render: (value, row) => (
                 <div className="flex gap-2">
-                    <Button size="sm" variant="secondary" className="p-2">
+                    <Button size="sm" variant="secondary" className="p-2" onClick={() => handleEdit(row)}>
                         <Edit2 className="w-4 h-4" />
                     </Button>
                     <Button size="sm" variant="danger" className="p-2" onClick={() => handleDelete(row.id)}>
@@ -66,18 +68,45 @@ const FacultyManagement = () => {
         },
     ];
 
+    const handleEdit = (facultyMember) => {
+        setEditingId(facultyMember.id);
+        let days = '';
+        try {
+            // Try to parse if it's a JSON string, otherwise use as is
+            const parsed = JSON.parse(facultyMember.availableDays);
+            days = Array.isArray(parsed) ? parsed.join(', ') : facultyMember.availableDays;
+        } catch (e) {
+            days = facultyMember.availableDays;
+        }
+
+        setFormData({
+            name: facultyMember.name,
+            email: facultyMember.email,
+            departmentId: facultyMember.departmentId,
+            maxWeeklyLoad: facultyMember.maxWeeklyLoad,
+            availableDays: days,
+        });
+        setIsModalOpen(true);
+    };
+
     const handleSubmit = async (e) => {
         e.preventDefault();
         setSubmitting(true);
         try {
-            // Convert availableDays string to array if needed by backend, or keep as string/JSON
+            const daysArray = formData.availableDays.split(',').map(d => d.trim()).filter(Boolean);
             const payload = {
                 ...formData,
                 maxWeeklyLoad: parseInt(formData.maxWeeklyLoad),
-                availableDays: formData.availableDays.split(',').map(d => d.trim()) // Assuming backend expects array
+                departmentId: parseInt(formData.departmentId),
+                availableDays: JSON.stringify(daysArray) // Send as JSON string
             };
 
-            await facultyApi.create(payload);
+            if (editingId) {
+                await facultyApi.update(editingId, payload);
+            } else {
+                await facultyApi.create(payload);
+            }
+
             setIsModalOpen(false);
             setFormData({
                 name: '',
@@ -86,10 +115,11 @@ const FacultyManagement = () => {
                 maxWeeklyLoad: '',
                 availableDays: '',
             });
+            setEditingId(null);
             fetchFaculty();
         } catch (error) {
-            console.error("Failed to create faculty", error);
-            alert("Failed to create faculty");
+            console.error("Failed to save faculty", error);
+            alert("Failed to save faculty");
         } finally {
             setSubmitting(false);
         }
@@ -107,6 +137,18 @@ const FacultyManagement = () => {
         }
     };
 
+    const handleCloseModal = () => {
+        setIsModalOpen(false);
+        setFormData({
+            name: '',
+            email: '',
+            departmentId: '',
+            maxWeeklyLoad: '',
+            availableDays: '',
+        });
+        setEditingId(null);
+    };
+
     return (
         <div className="space-y-6">
             <div className="flex justify-between items-center">
@@ -114,7 +156,7 @@ const FacultyManagement = () => {
                     <h1 className="text-3xl font-bold text-slate-900">Faculty Management</h1>
                     <p className="text-slate-600 mt-1">Manage faculty members and their workload</p>
                 </div>
-                <Button onClick={() => setIsModalOpen(true)} className="flex items-center gap-2">
+                <Button onClick={() => { setEditingId(null); setFormData({ name: '', email: '', departmentId: '', maxWeeklyLoad: '', availableDays: '' }); setIsModalOpen(true); }} className="flex items-center gap-2">
                     <span>+ Add Faculty</span>
                 </Button>
             </div>
@@ -131,15 +173,15 @@ const FacultyManagement = () => {
 
             <Modal
                 isOpen={isModalOpen}
-                onClose={() => setIsModalOpen(false)}
-                title="Add New Faculty Member"
+                onClose={handleCloseModal}
+                title={editingId ? "Edit Faculty Member" : "Add New Faculty Member"}
                 footer={
                     <>
-                        <Button variant="secondary" onClick={() => setIsModalOpen(false)}>
+                        <Button variant="secondary" onClick={handleCloseModal}>
                             Cancel
                         </Button>
                         <Button onClick={handleSubmit} disabled={submitting}>
-                            {submitting ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Save Faculty'}
+                            {submitting ? <Loader2 className="w-4 h-4 animate-spin" /> : (editingId ? 'Update Faculty' : 'Save Faculty')}
                         </Button>
                     </>
                 }

@@ -14,6 +14,8 @@ const DepartmentManagement = () => {
     const [loading, setLoading] = useState(true);
     const [submitting, setSubmitting] = useState(false);
 
+    const [editingId, setEditingId] = useState(null);
+
     useEffect(() => {
         fetchDepartments();
     }, []);
@@ -49,7 +51,7 @@ const DepartmentManagement = () => {
             header: 'Actions',
             render: (value, row) => (
                 <div className="flex gap-2">
-                    <Button size="sm" variant="secondary" className="p-2">
+                    <Button size="sm" variant="secondary" className="p-2" onClick={() => handleEdit(row)}>
                         <Edit2 className="w-4 h-4" />
                     </Button>
                     <Button size="sm" variant="danger" className="p-2" onClick={() => handleDelete(row.id)}>
@@ -60,17 +62,39 @@ const DepartmentManagement = () => {
         },
     ];
 
+    const handleEdit = (department) => {
+        setEditingId(department.id);
+        setFormData({
+            name: department.name,
+            code: department.code,
+            hod: department.headOfDepartment || '' // Map headOfDepartment to hod
+        });
+        setIsModalOpen(true);
+    };
+
     const handleSubmit = async (e) => {
         e.preventDefault();
         setSubmitting(true);
         try {
-            await departmentApi.create(formData);
+            const payload = {
+                name: formData.name,
+                code: formData.code,
+                headOfDepartment: formData.hod // Map hod to headOfDepartment
+            };
+
+            if (editingId) {
+                await departmentApi.update(editingId, payload);
+            } else {
+                await departmentApi.create(payload);
+            }
+
             setIsModalOpen(false);
             setFormData({ name: '', code: '', hod: '' });
+            setEditingId(null);
             fetchDepartments();
         } catch (error) {
-            console.error("Failed to create department", error);
-            alert("Failed to create department");
+            console.error("Failed to save department", error);
+            alert("Failed to save department");
         } finally {
             setSubmitting(false);
         }
@@ -88,6 +112,12 @@ const DepartmentManagement = () => {
         }
     };
 
+    const handleCloseModal = () => {
+        setIsModalOpen(false);
+        setFormData({ name: '', code: '', hod: '' });
+        setEditingId(null);
+    };
+
     return (
         <div className="space-y-6">
             <div className="flex justify-between items-center">
@@ -95,7 +125,7 @@ const DepartmentManagement = () => {
                     <h1 className="text-3xl font-bold text-slate-900">Department Management</h1>
                     <p className="text-slate-600 mt-1">Manage academic departments</p>
                 </div>
-                <Button onClick={() => setIsModalOpen(true)} className="flex items-center gap-2">
+                <Button onClick={() => { setEditingId(null); setFormData({ name: '', code: '', hod: '' }); setIsModalOpen(true); }} className="flex items-center gap-2">
                     <span>+ Add Department</span>
                 </Button>
             </div>
@@ -112,15 +142,15 @@ const DepartmentManagement = () => {
 
             <Modal
                 isOpen={isModalOpen}
-                onClose={() => setIsModalOpen(false)}
-                title="Add New Department"
+                onClose={handleCloseModal}
+                title={editingId ? "Edit Department" : "Add New Department"}
                 footer={
                     <>
-                        <Button variant="secondary" onClick={() => setIsModalOpen(false)}>
+                        <Button variant="secondary" onClick={handleCloseModal}>
                             Cancel
                         </Button>
                         <Button onClick={handleSubmit} disabled={submitting}>
-                            {submitting ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Save Department'}
+                            {submitting ? <Loader2 className="w-4 h-4 animate-spin" /> : (editingId ? 'Update Department' : 'Save Department')}
                         </Button>
                     </>
                 }
