@@ -7,7 +7,7 @@ export const API_TIMEOUT = parseInt(import.meta.env.VITE_API_TIMEOUT || '30000')
 
 // Feature flags
 export const ENABLE_MOCK_API = import.meta.env.VITE_ENABLE_MOCK_API === 'true';
-export const ENABLE_DEBUG = import.meta.env.VITE_ENABLE_DEBUG === 'true';
+export const ENABLE_DEBUG = true;
 
 // Storage keys
 export const TOKEN_KEY = import.meta.env.VITE_TOKEN_KEY || 'auth_token';
