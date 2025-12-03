@@ -36,6 +36,23 @@ export const AuthProvider = ({ children }) => {
         }
     };
 
+    const register = async (userData) => {
+        try {
+            const response = await axiosInstance.post('/auth/signup', userData);
+            const { token, user } = response.data;
+
+            localStorage.setItem('token', token);
+            localStorage.setItem('user', JSON.stringify(user));
+
+            setToken(token);
+            setUser(user);
+            return user;
+        } catch (error) {
+            console.error('Registration failed:', error);
+            throw error;
+        }
+    };
+
     const logout = () => {
         localStorage.removeItem('token');
         localStorage.removeItem('user');
@@ -48,6 +65,7 @@ export const AuthProvider = ({ children }) => {
         user,
         token,
         login,
+        register,
         logout,
         isAuthenticated: !!token,
         loading
