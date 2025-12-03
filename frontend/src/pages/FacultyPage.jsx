@@ -147,7 +147,7 @@ const FacultyPage = () => {
                     <h1 className="text-2xl font-bold text-gray-900">Faculty Members</h1>
                     <p className="text-gray-600">Manage faculty and their workload</p>
                 </div>
-                <Button onClick={() => setIsModalOpen(true)}>
+                <Button onClick={() => window.location.href = '/dashboard/faculty/add'}>
                     + Add Faculty
                 </Button>
             </div>

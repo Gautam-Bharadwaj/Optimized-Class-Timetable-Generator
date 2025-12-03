@@ -7,8 +7,11 @@ import ProtectedRoute from './components/ProtectedRoute';
 import DepartmentPage from './pages/DepartmentPage';
 import AddDepartment from './pages/AddDepartment';
 import FacultyPage from './pages/FacultyPage';
+import AddFaculty from './pages/AddFaculty';
 import ClassroomPage from './pages/ClassroomPage';
+import AddClassroom from './pages/AddClassroom';
 import SubjectPage from './pages/SubjectPage';
+import AddSubject from './pages/AddSubject';
 import TimetableGeneratePage from './pages/TimetableGeneratePage';
 import ApprovalPage from './pages/ApprovalPage';
 
@@ -26,8 +29,11 @@ function App() {
                         <Route path="/dashboard/departments" element={<DepartmentPage />} />
                         <Route path="/dashboard/departments/add" element={<AddDepartment />} />
                         <Route path="/dashboard/faculty" element={<FacultyPage />} />
+                        <Route path="/dashboard/faculty/add" element={<AddFaculty />} />
                         <Route path="/dashboard/classrooms" element={<ClassroomPage />} />
+                        <Route path="/dashboard/classrooms/add" element={<AddClassroom />} />
                         <Route path="/dashboard/subjects" element={<SubjectPage />} />
+                        <Route path="/dashboard/subjects/add" element={<AddSubject />} />
                         <Route path="/dashboard/timetable/generate" element={<TimetableGeneratePage />} />
                         <Route path="/dashboard/approvals" element={<ApprovalPage />} />
                     </Route>

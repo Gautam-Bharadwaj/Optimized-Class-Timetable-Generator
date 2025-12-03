@@ -143,7 +143,7 @@ const SubjectPage = () => {
                     <h1 className="text-2xl font-bold text-gray-900">Subjects</h1>
                     <p className="text-gray-600">Manage course catalog</p>
                 </div>
-                <Button onClick={() => setIsModalOpen(true)}>
+                <Button onClick={() => window.location.href = '/dashboard/subjects/add'}>
                     + Add Subject
                 </Button>
             </div>
