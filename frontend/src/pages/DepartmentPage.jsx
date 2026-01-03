@@ -1,13 +1,15 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { departmentApi } from '../api/department.api';
 import TableView from '../components/TableView';
 import Loader from '../components/Loader';
 import Modal from '../components/ui/Modal';
 import Input from '../components/ui/Input';
 import Button from '../components/ui/Button';
-import { Loader2 } from 'lucide-react';
+import { Loader2, Plus } from 'lucide-react';
 
 const DepartmentPage = () => {
+    const navigate = useNavigate();
     const [departments, setDepartments] = useState([]);
     const [loading, setLoading] = useState(true);
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -111,31 +113,37 @@ const DepartmentPage = () => {
 
     return (
         <div className="space-y-6">
-            <div className="flex justify-between items-center">
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <div>
-                    <h1 className="text-2xl font-bold text-gray-900">Departments</h1>
-                    <p className="text-gray-600">Manage academic departments</p>
+                    <h1 className="text-3xl font-bold text-gray-900 tracking-tight">Departments</h1>
+                    <p className="text-gray-500">Overview of all academic departments and their capacity.</p>
                 </div>
-                <Button onClick={() => window.location.href = '/dashboard/departments/add'}>
-                    + Add Department
+                <Button
+                    onClick={() => navigate('/dashboard/departments/add')}
+                    className="bg-blue-600 hover:bg-blue-700 shadow-md flex items-center gap-2"
+                >
+                    <Plus className="w-5 h-5" />
+                    New Department
                 </Button>
             </div>
 
-            <TableView
-                columns={columns}
-                data={departments}
-                onEdit={handleEdit}
-                onDelete={handleDelete}
-            />
+            <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+                <TableView
+                    columns={columns}
+                    data={departments}
+                    onEdit={handleEdit}
+                    onDelete={handleDelete}
+                />
+            </div>
 
             <Modal
                 isOpen={isModalOpen}
                 onClose={handleCloseModal}
-                title={editingId ? "Edit Department" : "Add New Department"}
+                title={editingId ? "Edit Department" : "Quick Add Department"}
                 footer={
                     <>
                         <Button variant="secondary" onClick={handleCloseModal}>Cancel</Button>
-                        <Button onClick={handleSubmit} disabled={submitting}>
+                        <Button onClick={handleSubmit} disabled={submitting} className="bg-blue-600">
                             {submitting ? <Loader2 className="w-4 h-4 animate-spin" /> : (editingId ? 'Update' : 'Save')}
                         </Button>
                     </>
@@ -161,7 +169,6 @@ const DepartmentPage = () => {
                         value={formData.hod}
                         onChange={(e) => setFormData({ ...formData, hod: e.target.value })}
                         placeholder="e.g., Dr. Smith"
-                        required
                     />
                 </form>
             </Modal>
@@ -170,3 +177,4 @@ const DepartmentPage = () => {
 };
 
 export default DepartmentPage;
+

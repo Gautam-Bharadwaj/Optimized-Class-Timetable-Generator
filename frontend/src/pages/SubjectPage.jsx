@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { subjectApi } from '../api/subject.api';
 import { departmentApi } from '../api/department.api';
 import TableView from '../components/TableView';
@@ -6,9 +7,10 @@ import Loader from '../components/Loader';
 import Modal from '../components/ui/Modal';
 import Input from '../components/ui/Input';
 import Button from '../components/ui/Button';
-import { Loader2 } from 'lucide-react';
+import { Loader2, Plus, BookOpen } from 'lucide-react';
 
 const SubjectPage = () => {
+    const navigate = useNavigate();
     const [subjects, setSubjects] = useState([]);
     const [departments, setDepartments] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -16,13 +18,13 @@ const SubjectPage = () => {
     const [submitting, setSubmitting] = useState(false);
     const [editingId, setEditingId] = useState(null);
     const [formData, setFormData] = useState({
-        code: '',
         name: '',
-        credits: '',
-        type: '',
-        lecturesPerWeek: '',
-        semester: '',
+        code: '',
         departmentId: '',
+        credits: '',
+        semester: '',
+        type: 'THEORY',
+        lecturesPerWeek: ''
     });
 
     useEffect(() => {
@@ -55,27 +57,26 @@ const SubjectPage = () => {
     const columns = [
         { key: 'code', header: 'Code' },
         { key: 'name', header: 'Subject Name' },
-        { key: 'credits', header: 'Credits' },
-        { key: 'type', header: 'Type' },
-        { key: 'semester', header: 'Sem' },
-        { key: 'lecturesPerWeek', header: 'L/W' },
         {
             key: 'department',
             header: 'Department',
             render: (value, row) => row.department?.code || '-'
-        }
+        },
+        { key: 'semester', header: 'Sem' },
+        { key: 'credits', header: 'Credits' },
+        { key: 'type', header: 'Type' }
     ];
 
     const handleEdit = (row) => {
         setEditingId(row.id);
         setFormData({
-            code: row.code,
             name: row.name,
-            credits: row.credits,
-            type: row.type,
-            lecturesPerWeek: row.lecturesPerWeek,
-            semester: row.semester,
+            code: row.code,
             departmentId: row.departmentId,
+            credits: row.credits,
+            semester: row.semester,
+            type: row.type,
+            lecturesPerWeek: row.lecturesPerWeek
         });
         setIsModalOpen(true);
     };
@@ -98,10 +99,10 @@ const SubjectPage = () => {
         try {
             const payload = {
                 ...formData,
+                departmentId: parseInt(formData.departmentId),
                 credits: parseInt(formData.credits),
-                lecturesPerWeek: parseInt(formData.lecturesPerWeek),
                 semester: parseInt(formData.semester),
-                departmentId: parseInt(formData.departmentId)
+                lecturesPerWeek: parseInt(formData.lecturesPerWeek)
             };
 
             if (editingId) {
@@ -123,13 +124,13 @@ const SubjectPage = () => {
     const handleCloseModal = () => {
         setIsModalOpen(false);
         setFormData({
-            code: '',
             name: '',
-            credits: '',
-            type: '',
-            lecturesPerWeek: '',
-            semester: '',
+            code: '',
             departmentId: '',
+            credits: '',
+            semester: '',
+            type: 'THEORY',
+            lecturesPerWeek: ''
         });
         setEditingId(null);
     };
@@ -138,90 +139,63 @@ const SubjectPage = () => {
 
     return (
         <div className="space-y-6">
-            <div className="flex justify-between items-center">
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <div>
-                    <h1 className="text-2xl font-bold text-gray-900">Subjects</h1>
-                    <p className="text-gray-600">Manage course catalog</p>
+                    <h1 className="text-3xl font-bold text-gray-900 tracking-tight">Subjects</h1>
+                    <p className="text-gray-500 text-lg">Manage course catalog, credits, and teaching requirements.</p>
                 </div>
-                <Button onClick={() => window.location.href = '/dashboard/subjects/add'}>
-                    + Add Subject
+                <Button
+                    onClick={() => navigate('/dashboard/subjects/add')}
+                    className="bg-orange-600 hover:bg-orange-700 shadow-md flex items-center gap-2"
+                >
+                    <Plus className="w-5 h-5" />
+                    New Subject
                 </Button>
             </div>
 
-            <TableView
-                columns={columns}
-                data={subjects}
-                onEdit={handleEdit}
-                onDelete={handleDelete}
-            />
+            <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+                <TableView
+                    columns={columns}
+                    data={subjects}
+                    onEdit={handleEdit}
+                    onDelete={handleDelete}
+                />
+            </div>
 
             <Modal
                 isOpen={isModalOpen}
                 onClose={handleCloseModal}
-                title={editingId ? "Edit Subject" : "Add New Subject"}
+                title={editingId ? "Edit Subject" : "Quick Add Subject"}
                 footer={
                     <>
                         <Button variant="secondary" onClick={handleCloseModal}>Cancel</Button>
-                        <Button onClick={handleSubmit} disabled={submitting}>
+                        <Button onClick={handleSubmit} disabled={submitting} className="bg-orange-600 font-medium">
                             {submitting ? <Loader2 className="w-4 h-4 animate-spin" /> : (editingId ? 'Update' : 'Save')}
                         </Button>
                     </>
                 }
             >
                 <form onSubmit={handleSubmit} className="space-y-4">
-                    <Input
-                        label="Subject Code"
-                        value={formData.code}
-                        onChange={(e) => setFormData({ ...formData, code: e.target.value })}
-                        placeholder="e.g., CS101"
-                        required
-                    />
-                    <Input
-                        label="Subject Name"
-                        value={formData.name}
-                        onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                        placeholder="e.g., Data Structures"
-                        required
-                    />
                     <div className="grid grid-cols-2 gap-4">
                         <Input
-                            label="Credits"
-                            type="number"
-                            value={formData.credits}
-                            onChange={(e) => setFormData({ ...formData, credits: e.target.value })}
-                            placeholder="e.g., 4"
+                            label="Subject Name"
+                            value={formData.name}
+                            onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                            placeholder="e.g., Data Structures"
                             required
                         />
                         <Input
-                            label="Type"
-                            value={formData.type}
-                            onChange={(e) => setFormData({ ...formData, type: e.target.value })}
-                            placeholder="e.g., Lecture"
-                            required
-                        />
-                    </div>
-                    <div className="grid grid-cols-2 gap-4">
-                        <Input
-                            label="Lectures/Week"
-                            type="number"
-                            value={formData.lecturesPerWeek}
-                            onChange={(e) => setFormData({ ...formData, lecturesPerWeek: e.target.value })}
-                            placeholder="e.g., 3"
-                            required
-                        />
-                        <Input
-                            label="Semester"
-                            type="number"
-                            value={formData.semester}
-                            onChange={(e) => setFormData({ ...formData, semester: e.target.value })}
-                            placeholder="e.g., 3"
+                            label="Subject Code"
+                            value={formData.code}
+                            onChange={(e) => setFormData({ ...formData, code: e.target.value })}
+                            placeholder="e.g., CS201"
                             required
                         />
                     </div>
                     <div>
                         <label className="block text-sm font-medium text-gray-700 mb-1">Department</label>
                         <select
-                            className="w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                            className="w-full rounded-lg border border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 px-4 py-2.5 text-sm outline-none transition-all focus:ring-2"
                             value={formData.departmentId}
                             onChange={(e) => setFormData({ ...formData, departmentId: e.target.value })}
                             required
@@ -231,6 +205,43 @@ const SubjectPage = () => {
                                 <option key={dept.id} value={dept.id}>{dept.name} ({dept.code})</option>
                             ))}
                         </select>
+                    </div>
+                    <div className="grid grid-cols-2 gap-4">
+                        <Input
+                            label="Credits"
+                            type="number"
+                            value={formData.credits}
+                            onChange={(e) => setFormData({ ...formData, credits: e.target.value })}
+                            required
+                        />
+                        <Input
+                            label="Semester"
+                            type="number"
+                            value={formData.semester}
+                            onChange={(e) => setFormData({ ...formData, semester: e.target.value })}
+                            required
+                        />
+                    </div>
+                    <div className="grid grid-cols-2 gap-4">
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">Type</label>
+                            <select
+                                className="w-full rounded-lg border border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 px-4 py-2.5 text-sm outline-none transition-all focus:ring-2"
+                                value={formData.type}
+                                onChange={(e) => setFormData({ ...formData, type: e.target.value })}
+                                required
+                            >
+                                <option value="THEORY">Theory</option>
+                                <option value="LAB">Lab</option>
+                            </select>
+                        </div>
+                        <Input
+                            label="Lectures/Week"
+                            type="number"
+                            value={formData.lecturesPerWeek}
+                            onChange={(e) => setFormData({ ...formData, lecturesPerWeek: e.target.value })}
+                            required
+                        />
                     </div>
                 </form>
             </Modal>

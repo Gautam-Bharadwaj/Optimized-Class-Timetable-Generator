@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { classroomApi } from '../api/classroom.api';
 import { departmentApi } from '../api/department.api';
 import TableView from '../components/TableView';
@@ -6,9 +7,10 @@ import Loader from '../components/Loader';
 import Modal from '../components/ui/Modal';
 import Input from '../components/ui/Input';
 import Button from '../components/ui/Button';
-import { Loader2 } from 'lucide-react';
+import { Loader2, Plus, School } from 'lucide-react';
 
 const ClassroomPage = () => {
+    const navigate = useNavigate();
     const [classrooms, setClassrooms] = useState([]);
     const [departments, setDepartments] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -125,31 +127,37 @@ const ClassroomPage = () => {
 
     return (
         <div className="space-y-6">
-            <div className="flex justify-between items-center">
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <div>
-                    <h1 className="text-2xl font-bold text-gray-900">Classrooms</h1>
-                    <p className="text-gray-600">Manage classrooms and laboratories</p>
+                    <h1 className="text-3xl font-bold text-gray-900 tracking-tight">Classrooms</h1>
+                    <p className="text-gray-500 text-lg">Manage available rooms, labs, and their academic allocation.</p>
                 </div>
-                <Button onClick={() => window.location.href = '/dashboard/classrooms/add'}>
-                    + Add Classroom
+                <Button
+                    onClick={() => navigate('/dashboard/classrooms/add')}
+                    className="bg-purple-600 hover:bg-purple-700 shadow-md flex items-center gap-2"
+                >
+                    <Plus className="w-5 h-5" />
+                    Add Classroom
                 </Button>
             </div>
 
-            <TableView
-                columns={columns}
-                data={classrooms}
-                onEdit={handleEdit}
-                onDelete={handleDelete}
-            />
+            <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+                <TableView
+                    columns={columns}
+                    data={classrooms}
+                    onEdit={handleEdit}
+                    onDelete={handleDelete}
+                />
+            </div>
 
             <Modal
                 isOpen={isModalOpen}
                 onClose={handleCloseModal}
-                title={editingId ? "Edit Classroom" : "Add New Classroom"}
+                title={editingId ? "Edit Classroom" : "Quick Add Classroom"}
                 footer={
                     <>
                         <Button variant="secondary" onClick={handleCloseModal}>Cancel</Button>
-                        <Button onClick={handleSubmit} disabled={submitting}>
+                        <Button onClick={handleSubmit} disabled={submitting} className="bg-purple-600">
                             {submitting ? <Loader2 className="w-4 h-4 animate-spin" /> : (editingId ? 'Update' : 'Save')}
                         </Button>
                     </>
@@ -163,26 +171,28 @@ const ClassroomPage = () => {
                         placeholder="e.g., CSE-Lab-1"
                         required
                     />
-                    <Input
-                        label="Year"
-                        type="number"
-                        value={formData.year}
-                        onChange={(e) => setFormData({ ...formData, year: e.target.value })}
-                        placeholder="e.g., 2"
-                        required
-                    />
-                    <Input
-                        label="Semester"
-                        type="number"
-                        value={formData.semester}
-                        onChange={(e) => setFormData({ ...formData, semester: e.target.value })}
-                        placeholder="e.g., 3"
-                        required
-                    />
+                    <div className="grid grid-cols-2 gap-4">
+                        <Input
+                            label="Year"
+                            type="number"
+                            value={formData.year}
+                            onChange={(e) => setFormData({ ...formData, year: e.target.value })}
+                            placeholder="e.g., 2"
+                            required
+                        />
+                        <Input
+                            label="Semester"
+                            type="number"
+                            value={formData.semester}
+                            onChange={(e) => setFormData({ ...formData, semester: e.target.value })}
+                            placeholder="e.g., 3"
+                            required
+                        />
+                    </div>
                     <div>
                         <label className="block text-sm font-medium text-gray-700 mb-1">Department</label>
                         <select
-                            className="w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                            className="w-full rounded-lg border border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 px-4 py-2.5 text-sm outline-none transition-all focus:ring-2"
                             value={formData.departmentId}
                             onChange={(e) => setFormData({ ...formData, departmentId: e.target.value })}
                             required
@@ -200,3 +210,4 @@ const ClassroomPage = () => {
 };
 
 export default ClassroomPage;
+
