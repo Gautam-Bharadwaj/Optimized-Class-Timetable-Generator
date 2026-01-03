@@ -157,23 +157,23 @@ const TimetableGeneratePage = () => {
                                     </div>
                                 </div>
 
-                                {/* Placeholder for Grid View - In a real app, you'd map over generatedTimetable.slots */}
+                                {/* Preview of generated slots */}
                                 <div className="border rounded-lg overflow-hidden">
                                     <div className="bg-gray-50 px-4 py-2 border-b text-sm font-medium text-gray-700">
                                         Preview (First 5 slots)
                                     </div>
-                                    <div className="divide-y">
-                                        {/* Mock preview if actual structure is complex, or map real data */}
-                                        {generatedTimetable.length > 0 ? (
-                                            generatedTimetable.slice(0, 5).map((slot, idx) => (
-                                                <div key={idx} className="px-4 py-3 text-sm flex justify-between">
-                                                    <span className="font-medium">{slot.day} - {slot.time}</span>
-                                                    <span className="text-gray-600">{slot.subject} ({slot.type})</span>
-                                                    <span className="text-gray-500">{slot.room}</span>
+                                    <div className="divide-y text-sm">
+                                        {generatedTimetable.slots && generatedTimetable.slots.length > 0 ? (
+                                            generatedTimetable.slots.slice(0, 5).map((slot, idx) => (
+                                                <div key={idx} className="px-4 py-3 flex justify-between">
+                                                    <span className="font-medium text-blue-700">{slot.dayOfWeek}</span>
+                                                    <span className="text-gray-500">{slot.startTime} - {slot.endTime}</span>
+                                                    <span className="text-gray-900 font-medium">Sub ID: {slot.subjectId}</span>
+                                                    <span className="text-gray-500 font-mono text-xs">Room: {slot.classroomId}</span>
                                                 </div>
                                             ))
                                         ) : (
-                                            <div className="p-4 text-sm text-gray-500">No slots data available to preview.</div>
+                                            <div className="p-4 text-sm text-gray-500">No slots available for preview.</div>
                                         )}
                                     </div>
                                 </div>
