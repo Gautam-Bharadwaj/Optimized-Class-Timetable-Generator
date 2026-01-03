@@ -22,6 +22,7 @@ const Sidebar = () => {
         { to: '/dashboard/classrooms', label: 'Classrooms', icon: School },
         { to: '/dashboard/subjects', label: 'Subjects', icon: BookOpen },
         { to: '/dashboard/timetable/generate', label: 'Generate Timetable', icon: Calendar },
+        { to: '/dashboard/timetables', label: 'Academic Timetables', icon: Calendar },
         { to: '/dashboard/approvals', label: 'Approvals', icon: CheckSquare },
     ];
 

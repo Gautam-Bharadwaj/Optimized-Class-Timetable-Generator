@@ -5,6 +5,7 @@ import Loader from '../components/Loader';
 import Button from '../components/ui/Button';
 import Card from '../components/ui/Card';
 import { Loader2, Calendar, CheckCircle, AlertTriangle } from 'lucide-react';
+import TimetableGrid from '../components/TimetableGrid';
 
 const TimetableGeneratePage = () => {
     const [departments, setDepartments] = useState([]);
@@ -158,23 +159,13 @@ const TimetableGeneratePage = () => {
                                 </div>
 
                                 {/* Preview of generated slots */}
-                                <div className="border rounded-lg overflow-hidden">
-                                    <div className="bg-gray-50 px-4 py-2 border-b text-sm font-medium text-gray-700">
-                                        Preview (First 5 slots)
+                                <div className="space-y-2">
+                                    <div className="flex items-center justify-between">
+                                        <h4 className="text-sm font-bold text-slate-700 uppercase tracking-wider">Weekly Schedule Preview</h4>
+                                        <span className="text-xs text-slate-400">{generatedTimetable.slots?.length} Optimized Slots</span>
                                     </div>
-                                    <div className="divide-y text-sm">
-                                        {generatedTimetable.slots && generatedTimetable.slots.length > 0 ? (
-                                            generatedTimetable.slots.slice(0, 5).map((slot, idx) => (
-                                                <div key={idx} className="px-4 py-3 flex justify-between">
-                                                    <span className="font-medium text-blue-700">{slot.dayOfWeek}</span>
-                                                    <span className="text-gray-500">{slot.startTime} - {slot.endTime}</span>
-                                                    <span className="text-gray-900 font-medium">Sub ID: {slot.subjectId}</span>
-                                                    <span className="text-gray-500 font-mono text-xs">Room: {slot.classroomId}</span>
-                                                </div>
-                                            ))
-                                        ) : (
-                                            <div className="p-4 text-sm text-gray-500">No slots available for preview.</div>
-                                        )}
+                                    <div className="max-h-[500px] overflow-y-auto rounded-xl border border-slate-100 shadow-inner bg-slate-50/30 p-2">
+                                        <TimetableGrid slots={generatedTimetable.slots || []} />
                                     </div>
                                 </div>
 

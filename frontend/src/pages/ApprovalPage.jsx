@@ -6,11 +6,14 @@ import Button from '../components/ui/Button';
 import Modal from '../components/ui/Modal';
 import { CheckCircle, XCircle, Eye } from 'lucide-react';
 
+import TimetableGrid from '../components/TimetableGrid';
+
 const ApprovalPage = () => {
     const [timetables, setTimetables] = useState([]);
     const [loading, setLoading] = useState(true);
     const [selectedTimetable, setSelectedTimetable] = useState(null);
     const [isViewModalOpen, setIsViewModalOpen] = useState(false);
+    const [fetchingDetail, setFetchingDetail] = useState(false);
 
     useEffect(() => {
         fetchPendingTimetables();
@@ -19,9 +22,7 @@ const ApprovalPage = () => {
     const fetchPendingTimetables = async () => {
         try {
             setLoading(true);
-            // Assuming getAll supports filtering or we filter client-side for now
             const data = await timetableApi.getAll();
-            // Filter for PENDING status if API returns all
             const pending = data.filter(t => t.status === 'PENDING' || t.status === 'DRAFT');
             setTimetables(pending);
         } catch (error) {
@@ -53,9 +54,17 @@ const ApprovalPage = () => {
         }
     };
 
-    const handleView = (timetable) => {
-        setSelectedTimetable(timetable);
+    const handleView = async (timetable) => {
         setIsViewModalOpen(true);
+        setFetchingDetail(true);
+        try {
+            const detail = await timetableApi.getById(timetable.id);
+            setSelectedTimetable(detail);
+        } catch (error) {
+            console.error("Failed to fetch detail", error);
+        } finally {
+            setFetchingDetail(false);
+        }
     };
 
     const columns = [
@@ -113,51 +122,38 @@ const ApprovalPage = () => {
             <TableView
                 columns={columns}
                 data={timetables}
-                actions={false} // Custom actions in column definition
+                actions={false}
             />
 
             <Modal
                 isOpen={isViewModalOpen}
                 onClose={() => setIsViewModalOpen(false)}
                 title="Timetable Preview"
+                maxWidth="6xl"
                 footer={
                     <Button onClick={() => setIsViewModalOpen(false)}>Close</Button>
                 }
             >
-                {selectedTimetable ? (
+                {fetchingDetail ? (
+                    <div className="py-12 flex flex-col items-center justify-center">
+                        <Loader />
+                        <p className="mt-4 text-slate-500">Fetching schedule detail...</p>
+                    </div>
+                ) : selectedTimetable ? (
                     <div className="space-y-4">
-                        <div className="grid grid-cols-2 gap-4 text-sm">
+                        <div className="grid grid-cols-2 gap-4 text-sm bg-slate-50 p-4 rounded-xl border border-slate-100">
                             <div>
-                                <span className="text-gray-500">Department:</span>
-                                <span className="ml-2 font-medium">{selectedTimetable.department?.name}</span>
+                                <span className="text-slate-500 font-bold uppercase text-[10px] tracking-wider">Department</span>
+                                <div className="font-bold text-slate-800">{selectedTimetable.department?.name}</div>
                             </div>
                             <div>
-                                <span className="text-gray-500">Semester:</span>
-                                <span className="ml-2 font-medium">{selectedTimetable.semester}</span>
+                                <span className="text-slate-500 font-bold uppercase text-[10px] tracking-wider">Semester</span>
+                                <div className="font-bold text-slate-800">{selectedTimetable.semester}</div>
                             </div>
                         </div>
 
-                        <div className="border rounded-lg overflow-hidden max-h-[400px] overflow-y-auto">
-                            <table className="min-w-full divide-y divide-gray-200">
-                                <thead className="bg-gray-50">
-                                    <tr>
-                                        <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Day</th>
-                                        <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Time</th>
-                                        <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Subject</th>
-                                        <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Faculty</th>
-                                    </tr>
-                                </thead>
-                                <tbody className="bg-white divide-y divide-gray-200">
-                                    {selectedTimetable.slots?.map((slot, idx) => (
-                                        <tr key={idx}>
-                                            <td className="px-4 py-2 text-sm text-gray-900">{slot.dayOfWeek}</td>
-                                            <td className="px-4 py-2 text-sm text-gray-500">{slot.startTime}-{slot.endTime}</td>
-                                            <td className="px-4 py-2 text-sm text-gray-900">Sub: {slot.subjectId}</td>
-                                            <td className="px-4 py-2 text-sm text-gray-900">Fac: {slot.facultyId}</td>
-                                        </tr>
-                                    ))}
-                                </tbody>
-                            </table>
+                        <div className="max-h-[60vh] overflow-y-auto">
+                            <TimetableGrid slots={selectedTimetable.slots || []} />
                         </div>
                     </div>
                 ) : (

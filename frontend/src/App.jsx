@@ -18,6 +18,7 @@ import EditClassroom from './pages/EditClassroom';
 import EditSubject from './pages/EditSubject';
 import TimetableGeneratePage from './pages/TimetableGeneratePage';
 import ApprovalPage from './pages/ApprovalPage';
+import TimetableDetailPage from './pages/TimetableDetailPage';
 
 function App() {
     return (
@@ -43,6 +44,7 @@ function App() {
                         <Route path="/dashboard/subjects/add" element={<AddSubject />} />
                         <Route path="/dashboard/subjects/edit/:id" element={<EditSubject />} />
                         <Route path="/dashboard/timetable/generate" element={<TimetableGeneratePage />} />
+                        <Route path="/dashboard/timetables" element={<TimetableDetailPage />} />
                         <Route path="/dashboard/approvals" element={<ApprovalPage />} />
                     </Route>
 

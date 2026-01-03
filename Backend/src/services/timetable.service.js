@@ -112,7 +112,14 @@ const getTimetableById = async (id) => {
     return await prisma.timetable.findUnique({
         where: { id: parseInt(id) },
         include: {
-            slots: true,
+            slots: {
+                include: {
+                    subject: { select: { name: true, code: true } },
+                    faculty: { select: { name: true } },
+                    classroom: { select: { name: true } }
+                }
+            },
+            department: { select: { name: true, code: true } },
             generatedBy: {
                 select: { name: true, email: true }
             },
