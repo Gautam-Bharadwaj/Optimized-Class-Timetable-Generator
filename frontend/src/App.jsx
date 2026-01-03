@@ -12,6 +12,10 @@ import ClassroomPage from './pages/ClassroomPage';
 import AddClassroom from './pages/AddClassroom';
 import SubjectPage from './pages/SubjectPage';
 import AddSubject from './pages/AddSubject';
+import EditDepartment from './pages/EditDepartment';
+import EditFaculty from './pages/EditFaculty';
+import EditClassroom from './pages/EditClassroom';
+import EditSubject from './pages/EditSubject';
 import TimetableGeneratePage from './pages/TimetableGeneratePage';
 import ApprovalPage from './pages/ApprovalPage';
 
@@ -28,12 +32,16 @@ function App() {
                         <Route path="/dashboard" element={<Dashboard />} />
                         <Route path="/dashboard/departments" element={<DepartmentPage />} />
                         <Route path="/dashboard/departments/add" element={<AddDepartment />} />
+                        <Route path="/dashboard/departments/edit/:id" element={<EditDepartment />} />
                         <Route path="/dashboard/faculty" element={<FacultyPage />} />
                         <Route path="/dashboard/faculty/add" element={<AddFaculty />} />
+                        <Route path="/dashboard/faculty/edit/:id" element={<EditFaculty />} />
                         <Route path="/dashboard/classrooms" element={<ClassroomPage />} />
                         <Route path="/dashboard/classrooms/add" element={<AddClassroom />} />
+                        <Route path="/dashboard/classrooms/edit/:id" element={<EditClassroom />} />
                         <Route path="/dashboard/subjects" element={<SubjectPage />} />
                         <Route path="/dashboard/subjects/add" element={<AddSubject />} />
+                        <Route path="/dashboard/subjects/edit/:id" element={<EditSubject />} />
                         <Route path="/dashboard/timetable/generate" element={<TimetableGeneratePage />} />
                         <Route path="/dashboard/approvals" element={<ApprovalPage />} />
                     </Route>

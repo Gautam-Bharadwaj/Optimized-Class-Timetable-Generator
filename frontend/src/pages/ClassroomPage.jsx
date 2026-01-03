@@ -63,14 +63,7 @@ const ClassroomPage = () => {
     ];
 
     const handleEdit = (row) => {
-        setEditingId(row.id);
-        setFormData({
-            name: row.name,
-            year: row.year,
-            semester: row.semester,
-            departmentId: row.departmentId,
-        });
-        setIsModalOpen(true);
+        navigate(`/dashboard/classrooms/edit/${row.id}`);
     };
 
     const handleDelete = async (row) => {

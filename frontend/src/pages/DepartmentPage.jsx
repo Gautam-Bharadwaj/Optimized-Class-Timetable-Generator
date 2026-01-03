@@ -53,14 +53,8 @@ const DepartmentPage = () => {
         }
     ];
 
-    const handleEdit = (dept) => {
-        setEditingId(dept.id);
-        setFormData({
-            name: dept.name,
-            code: dept.code,
-            hod: dept.headOfDepartment || ''
-        });
-        setIsModalOpen(true);
+    const handleEdit = (row) => {
+        navigate(`/dashboard/departments/edit/${row.id}`);
     };
 
     const handleDelete = async (dept) => {

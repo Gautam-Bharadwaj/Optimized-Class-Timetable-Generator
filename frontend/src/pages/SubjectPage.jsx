@@ -68,17 +68,7 @@ const SubjectPage = () => {
     ];
 
     const handleEdit = (row) => {
-        setEditingId(row.id);
-        setFormData({
-            name: row.name,
-            code: row.code,
-            departmentId: row.departmentId,
-            credits: row.credits,
-            semester: row.semester,
-            type: row.type,
-            lecturesPerWeek: row.lecturesPerWeek
-        });
-        setIsModalOpen(true);
+        navigate(`/dashboard/subjects/edit/${row.id}`);
     };
 
     const handleDelete = async (row) => {

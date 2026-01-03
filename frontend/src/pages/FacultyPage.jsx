@@ -69,23 +69,7 @@ const FacultyPage = () => {
     ];
 
     const handleEdit = (row) => {
-        setEditingId(row.id);
-        let days = '';
-        try {
-            const parsed = JSON.parse(row.availableDays);
-            days = Array.isArray(parsed) ? parsed.join(', ') : row.availableDays;
-        } catch (e) {
-            days = row.availableDays;
-        }
-
-        setFormData({
-            name: row.name,
-            email: row.email,
-            departmentId: row.departmentId,
-            maxWeeklyLoad: row.maxWeeklyLoad,
-            availableDays: days,
-        });
-        setIsModalOpen(true);
+        navigate(`/dashboard/faculty/edit/${row.id}`);
     };
 
     const handleDelete = async (row) => {
