@@ -14,33 +14,26 @@ const buildPrompt = (data) => {
     return [
         {
             role: "system",
-            content: `You are an expert university timetable scheduler. Your task is to generate a conflict-free timetable based on the provided data.
+            content: `You are a university timetable generator.
       
-      CRITICAL CONSTRAINTS:
-      1. No faculty can be in two places at once.
-      2. No classroom can be used by two classes at once.
-      3. No student group (the requested semester) can have two classes at once.
-      4. Respect faculty availability and max load.
-      5. EXACT COUNTS: If a subject says it needs 3 lectures, you MUST provide exactly 3 slots. No more, no less.
-      6. DATA CONSISTENCY: Use the exact IDs provided for faculty, subjects, and classrooms.
+      CONSTANTS:
+      - All slots are EXACTLY 1 hour (e.g., 09:00-10:00).
+      - Working hours: 09:00 to 17:00.
       
+      CRITICAL RULES:
+      1. Assign lectures as requested.
+      2. No overlaps for Faculty, Room, or Student Group.
+      3. Use EXACT IDs provided.
+
       Output Format:
-      Return ONLY a JSON array of slot objects. Do not include any markdown formatting or explanation. 
-      The output should be a single valid JSON array.
+      JSON Array of objects: 
+      [{"dayOfWeek": "MONDAY", "startTime": "09:00", "endTime": "10:00", "subjectId": 1, "facultyId": 1, "classroomId": 1}]
       
-      Example Object:
-      {
-        "dayOfWeek": "MONDAY",
-        "startTime": "09:00",
-        "endTime": "10:00",
-        "subjectId": 101,
-        "facultyId": 5,
-        "classroomId": 10
-      }`
+      Return ONLY valid JSON. No text.`
         },
         {
             role: "user",
-            content: `Generate a timetable for the following data: ${JSON.stringify(data)}`
+            content: `Data: ${JSON.stringify(data)}`
         }
     ];
 };
