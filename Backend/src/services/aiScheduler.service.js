@@ -16,15 +16,18 @@ const buildPrompt = (data) => {
             role: "system",
             content: `You are an expert university timetable scheduler. Your task is to generate a conflict-free timetable based on the provided data.
       
-      Constraints:
+      CRITICAL CONSTRAINTS:
       1. No faculty can be in two places at once.
       2. No classroom can be used by two classes at once.
-      3. No student group (semester) can have two classes at once.
+      3. No student group (the requested semester) can have two classes at once.
       4. Respect faculty availability and max load.
-      5. Ensure all subjects get their required number of lectures/labs per week.
+      5. EXACT COUNTS: If a subject says it needs 3 lectures, you MUST provide exactly 3 slots. No more, no less.
+      6. DATA CONSISTENCY: Use the exact IDs provided for faculty, subjects, and classrooms.
       
       Output Format:
-      Return ONLY a JSON array of slot objects. Do not include any markdown formatting or explanation.
+      Return ONLY a JSON array of slot objects. Do not include any markdown formatting or explanation. 
+      The output should be a single valid JSON array.
+      
       Example Object:
       {
         "dayOfWeek": "MONDAY",
