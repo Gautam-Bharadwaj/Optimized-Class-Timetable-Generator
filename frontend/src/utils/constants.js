@@ -3,7 +3,7 @@ export const APP_NAME = import.meta.env.VITE_APP_NAME || 'Timetable Generator';
 export const APP_VERSION = import.meta.env.VITE_APP_VERSION || '1.0.0';
 export const API_URL = import.meta.env.VITE_API_URL || 'https://timetable-backend-t7ct.onrender.com/api';
 export const API_AUTH_KEY = '6c25bacdc2ecdb72327ce01d755942a29cb3b39188261e4d4e289a372d1b987d';
-export const API_TIMEOUT = parseInt(import.meta.env.VITE_API_TIMEOUT || '30000');
+export const API_TIMEOUT = parseInt(import.meta.env.VITE_API_TIMEOUT || '120000');
 
 // Feature flags
 export const ENABLE_MOCK_API = import.meta.env.VITE_ENABLE_MOCK_API === 'true';
