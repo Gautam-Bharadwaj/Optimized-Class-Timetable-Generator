@@ -75,7 +75,7 @@ const saveGeneratedTimetable = async ({ departmentId, semester, name, generatedB
             name,
             generatedById,
             status: 'PENDING',
-            scoreJson: {} // Placeholder for score
+            scoreJson: "{}" // Placeholder for score
         }
     });
 
