@@ -5,3 +5,5 @@ node_modules
 /generated/prisma
 .vercel
 .env*.local
+*.db
+*.db-journal
