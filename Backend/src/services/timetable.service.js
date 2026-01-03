@@ -74,6 +74,8 @@ const saveGeneratedTimetable = async ({ departmentId, semester, name, generatedB
         data: {
             name,
             generatedById,
+            departmentId: parseInt(departmentId),
+            semester: parseInt(semester),
             status: 'PENDING',
             scoreJson: "{}" // Placeholder for score
         }
