@@ -1,61 +1,59 @@
-const OpenAI = require("openai");
+const { GoogleGenerativeAI } = require("@google/generative-ai");
 
-let client = null;
+let genAI = null;
+let model = null;
 
-// Only initialize OpenAI client if API key is provided
-if (process.env.GITHUB_OPENAI_API_KEY || process.env.OPENAI_API_KEY) {
-    client = new OpenAI({
-        baseURL: process.env.GITHUB_OPENAI_API_KEY ? "https://models.github.ai/inference" : undefined,
-        apiKey: process.env.GITHUB_OPENAI_API_KEY || process.env.OPENAI_API_KEY
-    });
+// Initialize Google Gemini Client
+// We use a hardcoded fallback or environment variable
+const apiKey = process.env.GOOGLE_API_KEY || "AIzaSyC1BPy6YsEDLp60d_-FnR3h82kiEnaYGyg";
+if (apiKey) {
+    genAI = new GoogleGenerativeAI(apiKey);
+    model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" }); // Using Flash for speed/reliability
 }
 
 const buildPrompt = (data) => {
-    return [
-        {
-            role: "system",
-            content: `You are a university timetable generator.
+    // Gemini prompt structure is simpler (just a string usually, but we keep the logic clean)
+    const systemInstruction = `You are an expert university timetable scheduler. Your task is to generate a conflict-free timetable based on the provided data.
       
-      CONSTANTS:
-      - All slots are EXACTLY 1 hour (e.g., 09:00-10:00).
-      - Working hours: 09:00 to 17:00.
+      CRITICAL CONSTRAINTS:
+      1. No faculty can be in two places at once.
+      2. No classroom can be used by two classes at once.
+      3. No student group (the requested semester) can have two classes at once.
+      4. Respect faculty availability and max load.
+      5. EXACT COUNTS: If a subject says it needs 3 lectures, you MUST provide exactly 3 slots. No more, no less.
+      6. DATA CONSISTENCY: Use the exact IDs provided for faculty, subjects, and classrooms.
       
-      CRITICAL RULES:
-      1. Assign lectures as requested.
-      2. No overlaps for Faculty, Room, or Student Group.
-      3. Use EXACT IDs provided.
-
       Output Format:
-      JSON Array of objects: 
-      [{"dayOfWeek": "MONDAY", "startTime": "09:00", "endTime": "10:00", "subjectId": 1, "facultyId": 1, "classroomId": 1}]
+      Return ONLY a JSON array of slot objects. Do not include any markdown formatting (like \`\`\`json) or explanation. 
+      The output should be a single valid JSON array.
       
-      Return ONLY valid JSON. No text.`
-        },
-        {
-            role: "user",
-            content: `Data: ${JSON.stringify(data)}`
-        }
-    ];
+      Example Object:
+      {
+        "dayOfWeek": "MONDAY",
+        "startTime": "09:00",
+        "endTime": "10:00",
+        "subjectId": 101,
+        "facultyId": 5,
+        "classroomId": 10
+      }`;
+
+    const userMessage = `Generate a timetable for the following data: ${JSON.stringify(data)}`;
+
+    return `${systemInstruction}\n\n${userMessage}`;
 };
 
-const callAiModel = async (messages) => {
-    if (!client) {
-        throw new Error("OpenAI API key not configured. Please set GITHUB_OPENAI_API_KEY or OPENAI_API_KEY in your .env file.");
+const callAiModel = async (prompt) => {
+    if (!model) {
+        throw new Error("Google Gemini API key not configured.");
     }
 
     try {
-        const response = await client.chat.completions.create({
-            messages: messages,
-            model: "gpt-4o-mini",
-            temperature: 0.1,
-            max_tokens: 4096,
-            top_p: 1
-        });
+        const result = await model.generateContent(prompt);
+        const response = await result.response;
+        const text = response.text();
 
-        const content = response.choices[0].message.content;
-
-        // Clean up potential markdown code blocks
-        const cleanContent = content.replace(/```json/g, '').replace(/```/g, '').trim();
+        // Clean up markdown if Gemini adds it
+        const cleanContent = text.replace(/```json/g, '').replace(/```/g, '').trim();
 
         return JSON.parse(cleanContent);
     } catch (error) {
