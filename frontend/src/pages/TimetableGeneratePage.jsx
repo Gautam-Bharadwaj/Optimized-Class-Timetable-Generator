@@ -46,8 +46,7 @@ const TimetableGeneratePage = () => {
             setGeneratedTimetable(result);
         } catch (error) {
             console.error("Failed to generate timetable", error);
-            const message = error.response?.data?.message || error.message || "Failed to generate timetable";
-            alert(`Error: ${message}`);
+            alert("Failed to generate timetable. Please try again.");
         } finally {
             setGenerating(false);
         }

@@ -2,18 +2,12 @@ const OpenAI = require("openai");
 
 let client = null;
 
-// Initialize OpenAI client with GitHub Models endpoint
-const apiKey = process.env.GITHUB_OPENAI_API_KEY || process.env.OPENAI_API_KEY;
-const baseURL = "https://models.github.ai/inference";
-
-if (apiKey) {
+// Only initialize OpenAI client if API key is provided
+if (process.env.GITHUB_OPENAI_API_KEY || process.env.OPENAI_API_KEY) {
     client = new OpenAI({
-        baseURL: baseURL,
-        apiKey: apiKey
+        baseURL: process.env.GITHUB_OPENAI_API_KEY ? "https://models.github.ai/inference" : undefined,
+        apiKey: process.env.GITHUB_OPENAI_API_KEY || process.env.OPENAI_API_KEY
     });
-    console.log("AI Service initialized with GitHub Models endpoint.");
-} else {
-    console.warn("AI Service Warning: No API Key found (GITHUB_OPENAI_API_KEY or OPENAI_API_KEY).");
 }
 
 const buildPrompt = (data) => {
@@ -50,20 +44,18 @@ const buildPrompt = (data) => {
 
 const callAiModel = async (messages) => {
     if (!client) {
-        throw new Error("OpenAI/GitHub API key not configured. Please set GITHUB_OPENAI_API_KEY in your .env file.");
+        throw new Error("OpenAI API key not configured. Please set GITHUB_OPENAI_API_KEY or OPENAI_API_KEY in your .env file.");
     }
 
     try {
-        console.log("Sending request to GitHub Models...");
         const response = await client.chat.completions.create({
             messages: messages,
-            model: "gpt-4o",
+            model: "gpt-4o", // Using the model name as per standard, or "openai/gpt-4o" if specific to this endpoint
             temperature: 0.1,
             max_tokens: 4096,
             top_p: 1
         });
 
-        console.log("Received response from AI.");
         const content = response.choices[0].message.content;
 
         // Clean up potential markdown code blocks
@@ -72,11 +64,7 @@ const callAiModel = async (messages) => {
         return JSON.parse(cleanContent);
     } catch (error) {
         console.error("AI Model Call Failed:", error);
-        if (error.response) {
-            console.error("Response data:", error.response.data);
-            console.error("Response status:", error.response.status);
-        }
-        throw new Error(`Failed to generate timetable via AI: ${error.message}`);
+        throw new Error("Failed to generate timetable via AI");
     }
 };
 
