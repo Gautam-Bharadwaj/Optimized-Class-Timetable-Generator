@@ -4,7 +4,7 @@ import { facultyApi } from '../api/faculty.api';
 import { departmentApi } from '../api/department.api';
 import Input from '../components/ui/Input';
 import Button from '../components/ui/Button';
-import { Loader2, ArrowLeft } from 'lucide-react';
+import { Loader2, ArrowLeft, Info } from 'lucide-react';
 
 const AddFaculty = () => {
     const navigate = useNavigate();
@@ -13,9 +13,12 @@ const AddFaculty = () => {
     const [formData, setFormData] = useState({
         name: '',
         email: '',
+        phone: '',
         maxWeeklyLoad: '',
+        averageLeavesPerMonth: '0',
         departmentId: '',
-        availableDays: ''
+        availableDays: 'Monday, Tuesday, Wednesday, Thursday, Friday',
+        preferredSlots: ''
     });
 
     useEffect(() => {
@@ -38,10 +41,12 @@ const AddFaculty = () => {
             const payload = {
                 name: formData.name,
                 email: formData.email,
+                phone: formData.phone || null,
                 maxWeeklyLoad: parseInt(formData.maxWeeklyLoad),
+                averageLeavesPerMonth: parseFloat(formData.averageLeavesPerMonth),
                 departmentId: parseInt(formData.departmentId),
-                // Send as array, backend should handle stringification or expect array
-                availableDays: JSON.stringify(formData.availableDays.split(',').map(day => day.trim()).filter(Boolean))
+                availableDays: JSON.stringify(formData.availableDays.split(',').map(day => day.trim()).filter(Boolean)),
+                preferredSlots: formData.preferredSlots ? JSON.stringify(formData.preferredSlots.split(',').map(slot => slot.trim()).filter(Boolean)) : null
             };
 
             await facultyApi.create(payload);
@@ -56,82 +61,145 @@ const AddFaculty = () => {
     };
 
     return (
-        <div className="max-w-2xl mx-auto space-y-6">
+        <div className="max-w-4xl mx-auto space-y-8 pb-12">
             <div className="flex items-center gap-4">
-                <Button variant="ghost" onClick={() => navigate('/dashboard/faculty')}>
+                <Button variant="ghost" onClick={() => navigate('/dashboard/faculty')} className="rounded-full h-10 w-10 p-0">
                     <ArrowLeft className="w-5 h-5" />
                 </Button>
                 <div>
-                    <h1 className="text-2xl font-bold text-gray-900">Add New Faculty</h1>
-                    <p className="text-gray-600">Register a new faculty member</p>
+                    <h1 className="text-3xl font-bold text-gray-900 tracking-tight">Add New Faculty</h1>
+                    <p className="text-gray-500">Register a new faculty member and configure their scheduling constraints.</p>
                 </div>
             </div>
 
-            <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
-                <form onSubmit={handleSubmit} className="space-y-6">
-                    <Input
-                        label="Full Name"
-                        value={formData.name}
-                        onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                        placeholder="e.g., Dr. John Doe"
-                        required
-                    />
-                    <Input
-                        label="Email Address"
-                        type="email"
-                        value={formData.email}
-                        onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                        placeholder="e.g., john.doe@university.edu"
-                        required
-                    />
-                    <Input
-                        label="Max Weekly Load"
-                        type="number"
-                        value={formData.maxWeeklyLoad}
-                        onChange={(e) => setFormData({ ...formData, maxWeeklyLoad: e.target.value })}
-                        placeholder="e.g., 12"
-                        required
-                    />
+            <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {/* Basic Information */}
+                <div className="md:col-span-2 bg-white p-8 rounded-2xl shadow-sm border border-gray-100 space-y-6">
+                    <h2 className="text-xl font-semibold text-gray-800 border-b pb-3 flex items-center gap-2">
+                        <span className="w-2 h-6 bg-blue-600 rounded-full"></span>
+                        Basic Information
+                    </h2>
 
-                    <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">
-                            Department
-                        </label>
-                        <select
-                            value={formData.departmentId}
-                            onChange={(e) => setFormData({ ...formData, departmentId: e.target.value })}
-                            className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <Input
+                            label="Full Name"
+                            value={formData.name}
+                            onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                            placeholder="e.g., Dr. John Doe"
                             required
-                        >
-                            <option value="">Select Department</option>
-                            {departments.map(dept => (
-                                <option key={dept.id} value={dept.id}>
-                                    {dept.name} ({dept.code})
-                                </option>
-                            ))}
-                        </select>
+                        />
+                        <Input
+                            label="Email Address"
+                            type="email"
+                            value={formData.email}
+                            onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                            placeholder="e.g., john.doe@university.edu"
+                            required
+                        />
+                        <Input
+                            label="Phone Number"
+                            value={formData.phone}
+                            onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                            placeholder="e.g., +1 234 567 890"
+                        />
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">
+                                Department
+                            </label>
+                            <select
+                                value={formData.departmentId}
+                                onChange={(e) => setFormData({ ...formData, departmentId: e.target.value })}
+                                className="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all"
+                                required
+                            >
+                                <option value="">Select Department</option>
+                                {departments.map(dept => (
+                                    <option key={dept.id} value={dept.id}>
+                                        {dept.name} ({dept.code})
+                                    </option>
+                                ))}
+                            </select>
+                        </div>
                     </div>
+                </div>
 
-                    <Input
-                        label="Available Days (comma separated)"
-                        value={formData.availableDays}
-                        onChange={(e) => setFormData({ ...formData, availableDays: e.target.value })}
-                        placeholder="e.g., Monday, Tuesday, Wednesday"
-                        required
-                    />
+                {/* Workload & Availability */}
+                <div className="md:col-span-2 bg-white p-8 rounded-2xl shadow-sm border border-gray-100 space-y-6">
+                    <h2 className="text-xl font-semibold text-gray-800 border-b pb-3 flex items-center gap-2">
+                        <span className="w-2 h-6 bg-emerald-500 rounded-full"></span>
+                        Workload & Availability
+                    </h2>
 
-                    <div className="flex justify-end gap-3 pt-4">
-                        <Button type="button" variant="secondary" onClick={() => navigate('/dashboard/faculty')}>
-                            Cancel
-                        </Button>
-                        <Button type="submit" disabled={submitting}>
-                            {submitting ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Create Faculty'}
-                        </Button>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <Input
+                            label="Max Weekly Load (Hours)"
+                            type="number"
+                            value={formData.maxWeeklyLoad}
+                            onChange={(e) => setFormData({ ...formData, maxWeeklyLoad: e.target.value })}
+                            placeholder="e.g., 40"
+                            required
+                        />
+                        <Input
+                            label="Average Leaves per Month"
+                            type="number"
+                            step="0.5"
+                            value={formData.averageLeavesPerMonth}
+                            onChange={(e) => setFormData({ ...formData, averageLeavesPerMonth: e.target.value })}
+                            placeholder="e.g., 2"
+                        />
+
+                        <div className="md:col-span-2 space-y-4">
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1 flex items-center gap-2">
+                                    Available Days
+                                    <div className="group relative">
+                                        <Info className="w-4 h-4 text-gray-400 cursor-help" />
+                                        <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 hidden group-hover:block w-48 bg-gray-900 text-white text-xs rounded-lg p-2 shadow-xl z-20">
+                                            Comma-separated days of the week when this faculty is available.
+                                        </div>
+                                    </div>
+                                </label>
+                                <Input
+                                    value={formData.availableDays}
+                                    onChange={(e) => setFormData({ ...formData, availableDays: e.target.value })}
+                                    placeholder="e.g., Monday, Tuesday, Wednesday"
+                                    required
+                                />
+                            </div>
+
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1 flex items-center gap-2">
+                                    Preferred Time Slots
+                                    <div className="group relative">
+                                        <Info className="w-4 h-4 text-gray-400 cursor-help" />
+                                        <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 hidden group-hover:block w-48 bg-gray-900 text-white text-xs rounded-lg p-2 shadow-xl z-20">
+                                            Comma-separated slots, e.g., 09:00-11:00, 14:00-16:00
+                                        </div>
+                                    </div>
+                                </label>
+                                <Input
+                                    value={formData.preferredSlots}
+                                    onChange={(e) => setFormData({ ...formData, preferredSlots: e.target.value })}
+                                    placeholder="e.g., 09:00-12:00, 14:00-16:00"
+                                />
+                            </div>
+                        </div>
                     </div>
-                </form>
-            </div>
+                </div>
+
+                <div className="md:col-span-2 flex justify-end gap-3 pt-4">
+                    <Button type="button" variant="secondary" onClick={() => navigate('/dashboard/faculty')} className="px-8">
+                        Cancel
+                    </Button>
+                    <Button type="submit" disabled={submitting} className="px-8 bg-blue-600 hover:bg-blue-700 shadow-md">
+                        {submitting ? <Loader2 className="w-5 h-5 animate-spin mr-2" /> : null}
+                        {submitting ? 'Saving...' : 'Register Faculty'}
+                    </Button>
+                </div>
+            </form>
         </div>
     );
 };
 
 export default AddFaculty;
+
