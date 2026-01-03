@@ -36,7 +36,61 @@ const generateTimetable = async (req, res, next) => {
         res.status(201).json(savedTimetable);
 
     } catch (error) {
-        next(error);
+        console.error("AI Generation Failed, attempting fallback:", error.message);
+
+        // --- Fallback Mechanism ---
+        try {
+            // Re-fetch data if needed or just use 'data' from above if scope allows. 
+            // We need to move 'data' variable declaration up or re-fetch.
+            const data = await timetableService.getGenerationData(req.body.departmentId, req.body.semester);
+
+            const fallbackSlots = [];
+            const days = ["MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY"];
+            const times = ["09:00", "10:00", "11:00", "12:00", "14:00", "15:00", "16:00"];
+
+            let dayIdx = 0;
+            let timeIdx = 0;
+
+            // Simple round-robin assignment
+            data.subjects.forEach(subject => {
+                const totalSlots = (subject.lectures || 0) + (subject.labs || 0);
+                for (let i = 0; i < totalSlots; i++) {
+                    if (timeIdx >= times.length) {
+                        timeIdx = 0;
+                        dayIdx = (dayIdx + 1) % days.length;
+                    }
+
+                    fallbackSlots.push({
+                        dayOfWeek: days[dayIdx],
+                        startTime: times[timeIdx],
+                        endTime: times[timeIdx] === "12:00" ? "13:00" :
+                            parseInt(times[timeIdx]) + 1 + ":00", // Simple increment
+                        subjectId: subject.id,
+                        facultyId: subject.facultyId || (data.faculty[0] ? data.faculty[0].id : null),
+                        classroomId: data.classrooms[0] ? data.classrooms[0].id : null
+                    });
+
+                    timeIdx++;
+                }
+            });
+
+            const savedTimetable = await timetableService.saveGeneratedTimetable({
+                departmentId: req.body.departmentId,
+                semester: req.body.semester,
+                name: req.body.name || `Fallback Timetable - ${new Date().toISOString()}`,
+                generatedById: req.user.id,
+                slots: fallbackSlots
+            });
+
+            return res.status(201).json({
+                ...savedTimetable,
+                warning: "Generated using fallback scheduler due to AI unavailability."
+            });
+
+        } catch (fallbackError) {
+            console.error("Fallback generation failed:", fallbackError);
+            next(error); // Return original error if fallback also fails
+        }
     }
 };
 
