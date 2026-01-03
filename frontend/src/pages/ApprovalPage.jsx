@@ -137,10 +137,27 @@ const ApprovalPage = () => {
                             </div>
                         </div>
 
-                        <div className="border rounded-lg p-4 bg-gray-50 text-center text-gray-500">
-                            Detailed grid view would go here.
-                            <br />
-                            (JSON data length: {JSON.stringify(selectedTimetable).length} chars)
+                        <div className="border rounded-lg overflow-hidden max-h-[400px] overflow-y-auto">
+                            <table className="min-w-full divide-y divide-gray-200">
+                                <thead className="bg-gray-50">
+                                    <tr>
+                                        <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Day</th>
+                                        <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Time</th>
+                                        <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Subject</th>
+                                        <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Faculty</th>
+                                    </tr>
+                                </thead>
+                                <tbody className="bg-white divide-y divide-gray-200">
+                                    {selectedTimetable.slots?.map((slot, idx) => (
+                                        <tr key={idx}>
+                                            <td className="px-4 py-2 text-sm text-gray-900">{slot.dayOfWeek}</td>
+                                            <td className="px-4 py-2 text-sm text-gray-500">{slot.startTime}-{slot.endTime}</td>
+                                            <td className="px-4 py-2 text-sm text-gray-900">Sub: {slot.subjectId}</td>
+                                            <td className="px-4 py-2 text-sm text-gray-900">Fac: {slot.facultyId}</td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
                         </div>
                     </div>
                 ) : (

@@ -133,6 +133,9 @@ const getAllTimetables = async (departmentId) => {
             generatedBy: {
                 select: { name: true }
             },
+            department: {
+                select: { name: true, code: true }
+            },
             _count: {
                 select: { slots: true }
             }

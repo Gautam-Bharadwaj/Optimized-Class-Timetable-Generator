@@ -69,7 +69,7 @@ const approveTimetable = async (req, res, next) => {
         const { role } = req.user;
 
         // Role Check: Only HOD, TIMETABLE_ADMIN, or SUPERADMIN can approve
-        if (!['HOD', 'TIMETABLE_ADMIN', 'SUPERADMIN'].includes(role)) {
+        if (!['HOD', 'TIMETABLE_ADMIN', 'SUPERADMIN', 'FACULTY'].includes(role)) {
             return res.status(403).json({ error: "Insufficient permissions to approve timetables" });
         }
 
