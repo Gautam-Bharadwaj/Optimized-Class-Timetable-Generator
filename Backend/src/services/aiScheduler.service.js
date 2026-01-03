@@ -53,7 +53,7 @@ const callAiModel = async (messages) => {
     try {
         const response = await client.chat.completions.create({
             messages: messages,
-            model: "gpt-4o", // Using the model name as per standard, or "openai/gpt-4o" if specific to this endpoint
+            model: "gpt-4o-mini",
             temperature: 0.1,
             max_tokens: 4096,
             top_p: 1
