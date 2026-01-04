@@ -22,6 +22,7 @@ const buildPrompt = (data) => {
       4. Respect faculty availability and max load.
       5. EXACT COUNTS: If a subject says it needs 3 lectures, you MUST provide exactly 3 slots. No more, no less.
       6. DATA CONSISTENCY: Use the exact IDs provided for faculty, subjects, and classrooms.
+      7. OCCUPIED CHECK: Check 'occupiedSlots' in data. DO NOT schedule a class in a room at a time if it is already in 'occupiedSlots'. THIS IS MANDATORY.
       
       Output Format:
       Return ONLY a JSON array of slot objects. Do not include any markdown formatting (like \`\`\`json) or explanation. 

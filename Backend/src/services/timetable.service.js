@@ -32,16 +32,40 @@ const getGenerationData = async (departmentId, semester) => {
         where: { departmentId: deptId }
     });
 
+    // 5. Fetch EXISTING Occupied Slots (from Approved/Pending Timetables of OTHER semesters/depts)
+    // This allows AI to know which rooms are already taken
+    const existingTimetables = await prisma.timetable.findMany({
+        where: {
+            status: { in: ['APPROVED', 'PENDING'] },
+            // Don't count CURRENT semester's pending drafts (as they will be replaced)
+            NOT: {
+                AND: [
+                    { departmentId: deptId },
+                    { semester: sem },
+                    { status: 'PENDING' }
+                ]
+            }
+        },
+        include: { slots: true }
+    });
+
+    const occupiedSlots = existingTimetables.flatMap(t => t.slots.map(s => ({
+        day: s.dayOfWeek,
+        time: s.startTime,
+        classroomId: s.classroomId
+    })));
+
     return {
         department,
         semester: sem,
+        occupiedSlots, // Pass this list to AI
         faculty: faculty.map(f => ({
             id: f.id,
             name: f.name,
             maxWeeklyLoad: f.maxWeeklyLoad,
             availableDays: f.availableDays,
             preferredSlots: f.preferredSlots,
-            qualifiedSubjects: f.subjects.map(s => s.subject.code) // List of subject codes they can teach
+            qualifiedSubjects: f.subjects.map(s => s.subject.code)
         })),
         subjects: subjects.map(s => ({
             id: s.id,
@@ -55,7 +79,7 @@ const getGenerationData = async (departmentId, semester) => {
         classrooms: classrooms.map(c => ({
             id: c.id,
             name: c.name,
-            capacity: c.capacity // Assuming capacity field exists or will be added
+            capacity: c.capacity
         })),
         constraints: {
             workingDays: ["MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY"],
