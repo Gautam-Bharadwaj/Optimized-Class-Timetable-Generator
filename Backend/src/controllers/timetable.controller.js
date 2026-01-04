@@ -51,32 +51,63 @@ const generateTimetable = async (req, res, next) => {
             console.log("----------------------");
 
             const fallbackSlots = [];
+            // Use Set to track conflicts: "Day-Time-RoomID"
+            const usedSlots = new Set();
+
+            // Populate usedSlots with occupiedSlots from other timetables (fetched in getGenerationData)
+            if (data.occupiedSlots) {
+                data.occupiedSlots.forEach(s => {
+                    // Normalize keys: MONDAY-09:00-1
+                    usedSlots.add(`${s.day}-${s.time}-${s.classroomId}`);
+                });
+            }
+
             const days = ["MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY"];
-            const times = ["09:00", "10:00", "11:00", "12:00", "14:00", "15:00", "16:00"];
+            const timeSlots = [
+                { start: "09:00", end: "10:00" },
+                { start: "10:00", end: "11:00" },
+                { start: "11:00", end: "12:00" },
+                { start: "12:00", end: "13:00" },
+                { start: "14:00", end: "15:00" },
+                { start: "15:00", end: "16:00" },
+                { start: "16:00", end: "17:00" }
+            ];
 
-            let dayIdx = 0;
-            let timeIdx = 0;
-
-            // Simple round-robin assignment
+            // Distribute subjects
             data.subjects.forEach(subject => {
-                const totalSlots = (subject.lectures || 0) + (subject.labs || 0);
-                for (let i = 0; i < totalSlots; i++) {
-                    if (timeIdx >= times.length) {
-                        timeIdx = 0;
-                        dayIdx = (dayIdx + 1) % days.length;
+                const totalNeeded = (subject.lectures || 0) + (subject.labs || 0);
+                let assigned = 0;
+
+                // Try days
+                for (const day of days) {
+                    if (assigned >= totalNeeded) break;
+
+                    // Try times
+                    for (const time of timeSlots) {
+                        if (assigned >= totalNeeded) break;
+
+                        // Find FREE Room
+                        const freeRoom = data.classrooms.find(room => {
+                            const key = `${day}-${time.start}-${room.id}`;
+                            return !usedSlots.has(key);
+                        });
+
+                        if (freeRoom) {
+                            // Assign
+                            const key = `${day}-${time.start}-${freeRoom.id}`;
+                            usedSlots.add(key);
+
+                            fallbackSlots.push({
+                                dayOfWeek: day,
+                                startTime: time.start,
+                                endTime: time.end,
+                                subjectId: subject.id,
+                                facultyId: subject.facultyId || (data.faculty[0] ? data.faculty[0].id : null),
+                                classroomId: freeRoom.id
+                            });
+                            assigned++;
+                        }
                     }
-
-                    fallbackSlots.push({
-                        dayOfWeek: days[dayIdx],
-                        startTime: times[timeIdx],
-                        endTime: times[timeIdx] === "12:00" ? "13:00" :
-                            parseInt(times[timeIdx]) + 1 + ":00", // Simple increment
-                        subjectId: subject.id,
-                        facultyId: subject.facultyId || (data.faculty[0] ? data.faculty[0].id : null),
-                        classroomId: data.classrooms[0] ? data.classrooms[0].id : null
-                    });
-
-                    timeIdx++;
                 }
             });
 
