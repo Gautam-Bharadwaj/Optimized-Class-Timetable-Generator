@@ -69,6 +69,16 @@ const getGenerationData = async (departmentId, semester) => {
 };
 
 const saveGeneratedTimetable = async ({ departmentId, semester, name, generatedById, slots }) => {
+    // 0. CLEANUP: Delete any existing PENDING timetables for this Dept/Sem to avoid conflicts
+    // This allows re-generation without manual deletion.
+    await prisma.timetable.deleteMany({
+        where: {
+            departmentId: parseInt(departmentId),
+            semester: parseInt(semester),
+            status: 'PENDING'
+        }
+    });
+
     // 1. Create Timetable Header
     const timetable = await prisma.timetable.create({
         data: {
