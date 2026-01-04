@@ -94,16 +94,40 @@ const getGenerationData = async (departmentId, semester) => {
 
 const saveGeneratedTimetable = async ({ departmentId, semester, name, generatedById, slots }) => {
     // 0. CLEANUP: Delete any existing PENDING timetables for this Dept/Sem to avoid conflicts
-    // This allows re-generation without manual deletion.
-    await prisma.timetable.deleteMany({
+    // --- DEEP CLEANUP START ---
+    // 1. Find PENDING Timetables for this context
+    const pendingTimetables = await prisma.timetable.findMany({
         where: {
             departmentId: parseInt(departmentId),
             semester: parseInt(semester),
             status: 'PENDING'
+        },
+        select: { id: true }
+    });
+    const pendingIds = pendingTimetables.map(t => t.id);
+
+    // 2. Delete Slots linked to PENDING timetables OR Orphaned slots (garbage) for this Dept/Sem
+    // This clears the "Unique Constraint" blockers (Zombies)
+    await prisma.timetableSlot.deleteMany({
+        where: {
+            OR: [
+                { timetableId: { in: pendingIds } },
+                {
+                    timetableId: null,
+                    departmentId: parseInt(departmentId),
+                    semester: parseInt(semester)
+                }
+            ]
         }
     });
 
-    // 1. Create Timetable Header
+    // 3. Delete the PENDING Timetables themselves
+    await prisma.timetable.deleteMany({
+        where: { id: { in: pendingIds } }
+    });
+    // --- DEEP CLEANUP END ---
+
+    // 4. Create New Timetable Header
     const timetable = await prisma.timetable.create({
         data: {
             name,
@@ -111,14 +135,11 @@ const saveGeneratedTimetable = async ({ departmentId, semester, name, generatedB
             departmentId: parseInt(departmentId),
             semester: parseInt(semester),
             status: 'PENDING',
-            scoreJson: "{}" // Placeholder for score
+            scoreJson: "{}"
         }
     });
 
-    // 2. Create Slots
-    // We need to map the AI output (which might use codes/names) back to IDs if necessary
-    // Assuming AI returns valid IDs or we mapped them correctly before calling this.
-
+    // 5. Map & Create Slots
     const slotData = slots.map(slot => ({
         dayOfWeek: slot.dayOfWeek,
         startTime: slot.startTime,
@@ -132,14 +153,9 @@ const saveGeneratedTimetable = async ({ departmentId, semester, name, generatedB
         isFixed: false
     }));
 
-    // AGGRESSIVE CLEANUP: Remove any slots for this Dept/Sem that are marked PENDING 
-    // (This finds slots linked to PENDING timetables and deletes them)
-    // Note: We already deleted the Timetable header above, but let's be sure about slots too if schema allows.
-    // If we can't filter slots by status directly, we rely on the Timetable delete above.
-
     await prisma.timetableSlot.createMany({
         data: slotData,
-        skipDuplicates: true // Safety net: skip if collisions persist
+        skipDuplicates: true // Still keep this as final safety
     });
 
     return await prisma.timetable.findUnique({
