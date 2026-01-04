@@ -55,9 +55,14 @@ const callAiModel = async (prompt) => {
         // Clean up markdown if Gemini adds it
         const cleanContent = text.replace(/```json/g, '').replace(/```/g, '').trim();
 
+        console.log("----- AI RAW RESPONSE -----");
+        console.log(text);
+        console.log("---------------------------");
+
         return JSON.parse(cleanContent);
     } catch (error) {
         console.error("AI Model Call Failed:", error);
+        if (error.response) console.error("AI Error Details:", JSON.stringify(error.response));
         throw new Error("Failed to generate timetable via AI");
     }
 };
