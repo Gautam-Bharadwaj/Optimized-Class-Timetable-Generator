@@ -1,11 +1,12 @@
 const { GoogleGenerativeAI } = require("@google/generative-ai");
 
 // The key provided by the user
-const API_KEY = "AIzaSyC1BPy6YsEDLp60d_-FnR3h82kiEnaYGyg";
+const API_KEY = "AIzaSyCPhANGpYBUzSwcGUZBb_UQT2kdVyB0H_o";
 
 async function testGemini() {
     console.log("1. Initializing Gemini Client...");
     const genAI = new GoogleGenerativeAI(API_KEY);
+    // Let's try the standard flash model first as it is most reliable for production
     const model = genAI.getGenerativeModel({ model: "gemini-3-pro-preview" });
 
     // 2. Define Dummy Data
