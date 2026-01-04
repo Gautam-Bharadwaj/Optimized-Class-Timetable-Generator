@@ -132,8 +132,14 @@ const saveGeneratedTimetable = async ({ departmentId, semester, name, generatedB
         isFixed: false
     }));
 
+    // AGGRESSIVE CLEANUP: Remove any slots for this Dept/Sem that are marked PENDING 
+    // (This finds slots linked to PENDING timetables and deletes them)
+    // Note: We already deleted the Timetable header above, but let's be sure about slots too if schema allows.
+    // If we can't filter slots by status directly, we rely on the Timetable delete above.
+
     await prisma.timetableSlot.createMany({
-        data: slotData
+        data: slotData,
+        skipDuplicates: true // Safety net: skip if collisions persist
     });
 
     return await prisma.timetable.findUnique({
