@@ -5,9 +5,9 @@ let model = null;
 
 // Initialize Google Gemini Client
 // We use a hardcoded fallback or environment variable
-const apiKey = process.env.GOOGLE_API_KEY || "AIzaSyCPhANGpYBUzSwcGUZBb_UQT2kdVyB0H_o";
-if (apiKey) {
-    genAI = new GoogleGenerativeAI(apiKey);
+const API_KEY = process.env.GOOGLE_AI_API_KEY;
+if (API_KEY) {
+    genAI = new GoogleGenerativeAI(API_KEY);
     model = genAI.getGenerativeModel({ model: "gemini-3-flash-preview" }); // Using Flash for speed/reliability
 }
 

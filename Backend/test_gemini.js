@@ -1,7 +1,11 @@
 const { GoogleGenerativeAI } = require("@google/generative-ai");
 
-// The key provided by the user
-const API_KEY = "AIzaSyCPhANGpYBUzSwcGUZBb_UQT2kdVyB0H_o";
+const API_KEY = process.env.GOOGLE_AI_API_KEY;
+
+if (!API_KEY) {
+    console.error("ERROR: GOOGLE_AI_API_KEY environment variable is missing.");
+    process.exit(1);
+}
 
 async function testGemini() {
     console.log("1. Initializing Gemini Client...");
