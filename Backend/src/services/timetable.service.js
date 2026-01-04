@@ -104,7 +104,15 @@ const saveGeneratedTimetable = async ({ departmentId, semester, name, generatedB
 
     return await prisma.timetable.findUnique({
         where: { id: timetable.id },
-        include: { slots: true }
+        include: {
+            slots: {
+                include: {
+                    subject: { select: { name: true, code: true } },
+                    faculty: { select: { name: true } },
+                    classroom: { select: { name: true } }
+                }
+            }
+        }
     });
 };
 
