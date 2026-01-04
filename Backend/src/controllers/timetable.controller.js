@@ -44,6 +44,12 @@ const generateTimetable = async (req, res, next) => {
             // We need to move 'data' variable declaration up or re-fetch.
             const data = await timetableService.getGenerationData(req.body.departmentId, req.body.semester);
 
+            console.log("--- FALLBACK DEBUG ---");
+            console.log(`Request - Dept: ${req.body.departmentId}, Sem: ${req.body.semester}`);
+            console.log(`Fetched - Subjects: ${data.subjects?.length}, Faculty: ${data.faculty?.length}, Rooms: ${data.classrooms?.length}`);
+            if (data.subjects?.length === 0) console.log("WARNING: No subjects found! Fallback will produce empty slots.");
+            console.log("----------------------");
+
             const fallbackSlots = [];
             const days = ["MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY"];
             const times = ["09:00", "10:00", "11:00", "12:00", "14:00", "15:00", "16:00"];
