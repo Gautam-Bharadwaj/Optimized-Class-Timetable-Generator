@@ -8,7 +8,7 @@ let model = null;
 const apiKey = process.env.GOOGLE_API_KEY || "AIzaSyCPhANGpYBUzSwcGUZBb_UQT2kdVyB0H_o";
 if (apiKey) {
     genAI = new GoogleGenerativeAI(apiKey);
-    model = genAI.getGenerativeModel({ model: "gemini-3-pro-preview" }); // Using the specific preview model
+    model = genAI.getGenerativeModel({ model: "gemini-3-flash-preview" }); // Using Flash for speed/reliability
 }
 
 const buildPrompt = (data) => {
