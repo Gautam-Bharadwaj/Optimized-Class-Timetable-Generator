@@ -172,6 +172,17 @@ const getTimetableById = async (id) => {
     });
 };
 
+const deleteTimetable = async (id) => {
+    // Due to Cascade delete not being guaranteed in all prisma setups, delete slots first
+    await prisma.timetableSlot.deleteMany({
+        where: { timetableId: parseInt(id) }
+    });
+
+    return await prisma.timetable.delete({
+        where: { id: parseInt(id) }
+    });
+};
+
 const getAllTimetables = async (departmentId) => {
     const where = departmentId ? { slots: { some: { departmentId: parseInt(departmentId) } } } : {};
 
@@ -224,5 +235,6 @@ module.exports = {
     saveGeneratedTimetable,
     getTimetableById,
     getAllTimetables,
-    approveTimetable
+    approveTimetable,
+    deleteTimetable
 };

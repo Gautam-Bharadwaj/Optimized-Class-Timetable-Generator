@@ -4,7 +4,7 @@ import { departmentApi } from '../api/department.api';
 import TimetableGrid from '../components/TimetableGrid';
 import Loader from '../components/Loader';
 import Card from '../components/ui/Card';
-import { Search, Filter, Download, Calendar } from 'lucide-react';
+import { Search, Filter, Download, Calendar, Trash2 } from 'lucide-react';
 
 const TimetableDetailPage = () => {
     const [departments, setDepartments] = useState([]);
@@ -51,6 +51,23 @@ const TimetableDetailPage = () => {
             console.error("Failed to fetch detail", error);
         } finally {
             setFetchingDetail(false);
+        }
+    };
+
+    const handleDelete = async (id) => {
+        if (!window.confirm("Are you sure you want to delete this approved timetable? This action cannot be undone and will free up these slots.")) return;
+
+        try {
+            await timetableApi.delete(id);
+            // Refresh list
+            const updated = timetables.filter(t => t.id !== id);
+            setTimetables(updated);
+            if (selectedTimetable?.id === id) {
+                setSelectedTimetable(null);
+            }
+        } catch (error) {
+            console.error("Failed to delete timetable", error);
+            alert("Failed to delete timetable");
         }
     };
 
@@ -126,19 +143,36 @@ const TimetableDetailPage = () => {
                                 {filteredTimetables.map(tt => (
                                     <div
                                         key={tt.id}
-                                        onClick={() => loadDetail(tt.id)}
-                                        className={`p-4 rounded-xl border transition-all cursor-pointer ${selectedTimetable?.id === tt.id
-                                                ? 'bg-blue-600 border-blue-600 text-white shadow-lg shadow-blue-600/20'
-                                                : 'bg-white border-slate-100 hover:border-blue-200 hover:bg-slate-50 text-slate-700'
+                                        className={`group relative p-4 rounded-xl border transition-all ${selectedTimetable?.id === tt.id
+                                            ? 'bg-blue-600 border-blue-600 text-white shadow-lg shadow-blue-600/20'
+                                            : 'bg-white border-slate-100 hover:border-blue-200 hover:bg-slate-50 text-slate-700'
                                             }`}
                                     >
-                                        <div className="font-bold flex items-center justify-between">
-                                            {tt.name || `Timetable #${tt.id}`}
-                                            {selectedTimetable?.id === tt.id && <Calendar className="w-4 h-4" />}
+                                        {/* Click area for selection */}
+                                        <div onClick={() => loadDetail(tt.id)} className="cursor-pointer">
+                                            <div className="font-bold flex items-center justify-between">
+                                                {tt.name || `Timetable #${tt.id}`}
+                                                {selectedTimetable?.id === tt.id && <Calendar className="w-4 h-4" />}
+                                            </div>
+                                            <div className={`text-xs mt-1 ${selectedTimetable?.id === tt.id ? 'text-blue-100' : 'text-slate-500'}`}>
+                                                {tt.department?.name} • Sem {tt.semester}
+                                            </div>
                                         </div>
-                                        <div className={`text-xs mt-1 ${selectedTimetable?.id === tt.id ? 'text-blue-100' : 'text-slate-500'}`}>
-                                            {tt.department?.name} • Sem {tt.semester}
-                                        </div>
+
+                                        {/* Delete Button (Only visible on hover or if selected) */}
+                                        <button
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                handleDelete(tt.id);
+                                            }}
+                                            className={`absolute top-2 right-2 p-1.5 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity ${selectedTimetable?.id === tt.id
+                                                ? 'bg-blue-500 text-white hover:bg-red-500'
+                                                : 'bg-slate-200 text-slate-600 hover:bg-red-500 hover:text-white'
+                                                }`}
+                                            title="Delete Timetable"
+                                        >
+                                            <Trash2 className="w-3.5 h-3.5" />
+                                        </button>
                                     </div>
                                 ))}
                                 {filteredTimetables.length === 0 && (

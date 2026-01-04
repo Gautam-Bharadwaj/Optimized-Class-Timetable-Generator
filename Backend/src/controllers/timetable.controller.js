@@ -145,9 +145,19 @@ const approveTimetable = async (req, res, next) => {
     }
 };
 
+const deleteTimetable = async (req, res, next) => {
+    try {
+        await timetableService.deleteTimetable(req.params.id);
+        res.status(200).json({ message: "Timetable deleted successfully" });
+    } catch (error) {
+        next(error);
+    }
+};
+
 module.exports = {
     generateTimetable,
     getTimetable,
     getTimetables,
-    approveTimetable
+    approveTimetable,
+    deleteTimetable
 };

@@ -11,5 +11,6 @@ router.post('/generate', timetableController.generateTimetable);
 router.get('/', timetableController.getTimetables);
 router.get('/:id', timetableController.getTimetable);
 router.post('/:id/approve', timetableController.approveTimetable);
+router.delete('/:id', timetableController.deleteTimetable);
 
 module.exports = router;
