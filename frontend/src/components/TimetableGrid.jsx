@@ -18,6 +18,14 @@ const TimetableGrid = ({ slots }) => {
 
     slots.forEach(slot => {
         const key = `${slot.startTime}-${slot.endTime}`;
+
+        // DEBUG: Check why some slots don't show
+        if (!grid[slot.dayOfWeek]) {
+            console.warn(`Grid mismatch for Day: ${slot.dayOfWeek}`, slot);
+        } else if (!grid[slot.dayOfWeek].hasOwnProperty(key)) {
+            console.warn(`Grid mismatch for Time: ${key} on ${slot.dayOfWeek}`, slot);
+        }
+
         if (grid[slot.dayOfWeek] && grid[slot.dayOfWeek].hasOwnProperty(key)) {
             grid[slot.dayOfWeek][key] = slot;
         }
