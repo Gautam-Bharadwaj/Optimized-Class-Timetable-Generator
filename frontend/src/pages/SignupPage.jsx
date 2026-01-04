@@ -40,7 +40,9 @@ const SignupPage = () => {
             });
             navigate('/dashboard');
         } catch (err) {
-            setError(err.response?.data?.message || 'Failed to create account. Please try again.');
+            console.error("Signup Error:", err);
+            const msg = err.response?.data?.message || err.response?.data?.error || 'Failed to create account. Please try again.';
+            setError(msg);
         } finally {
             setLoading(false);
         }
