@@ -173,10 +173,17 @@ const getTimetableById = async (id) => {
 };
 
 const deleteTimetable = async (id) => {
-    // Due to Cascade delete not being guaranteed in all prisma setups, delete slots first
+    // 1. Delete Approvals first (FK Constraint)
+    await prisma.approval.deleteMany({
+        where: { timetableId: parseInt(id) }
+    });
+
+    // 2. Delete Slots
     await prisma.timetableSlot.deleteMany({
         where: { timetableId: parseInt(id) }
     });
+
+    // 3. Delete Timetable
 
     return await prisma.timetable.delete({
         where: { id: parseInt(id) }
