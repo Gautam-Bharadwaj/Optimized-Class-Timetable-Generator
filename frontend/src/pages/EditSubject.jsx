@@ -76,7 +76,17 @@ const EditSubject = () => {
                 });
             } catch (error) {
                 console.error("Failed to fetch subject data", error);
-                alert("Failed to load subject data");
+
+                // --- DEBUGGING ---
+                console.log("Error Response:", error.response);
+                console.log("Error Message:", error.message);
+                if (error.response && error.response.status === 404) {
+                    alert("Subject not found (404). It might have been deleted.");
+                } else {
+                    alert(`Failed to load subject data. Details: ${error.message}`);
+                }
+                // -----------------
+
                 navigate('/dashboard/subjects');
             } finally {
                 setLoading(false);
