@@ -62,15 +62,15 @@ const EditSubject = () => {
                 setFormData({
                     name: subjectData.name,
                     code: subjectData.code,
-                    departmentId: subjectData.departmentId.toString(),
-                    credits: subjectData.credits.toString(),
-                    semester: subjectData.semester.toString(),
+                    departmentId: subjectData.departmentId?.toString() || '',
+                    credits: subjectData.credits?.toString() || '',
+                    semester: subjectData.semester?.toString() || '',
                     type: subjectData.type || 'LECTURE',
-                    lecturesPerWeek: subjectData.lecturesPerWeek.toString(),
+                    lecturesPerWeek: subjectData.lecturesPerWeek?.toString() || '',
                     labsPerWeek: subjectData.labsPerWeek?.toString() || '0',
-                    classesPerWeek: subjectData.classesPerWeek.toString(),
-                    classesPerDay: subjectData.classesPerDay.toString(),
-                    durationPerClass: subjectData.durationPerClass.toString(),
+                    classesPerWeek: subjectData.classesPerWeek?.toString() || '',
+                    classesPerDay: subjectData.classesPerDay?.toString() || '',
+                    durationPerClass: subjectData.durationPerClass?.toString() || '',
                     prerequisites: prereqs,
                     allowedRoomTypes: rooms
                 });
