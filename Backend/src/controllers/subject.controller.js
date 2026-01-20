@@ -4,7 +4,13 @@ const getSubjects = async (req, res, next) => {
     try { res.json(await subjectService.getAllSubjects()); } catch (e) { next(e); }
 };
 const getSubject = async (req, res, next) => {
-    try { res.json(await subjectService.getSubjectById(req.params.id)); } catch (e) { next(e); }
+    try {
+        const subject = await subjectService.getSubjectById(req.params.id);
+        if (!subject) {
+            return res.status(404).json({ error: "Subject not found" });
+        }
+        res.json(subject);
+    } catch (e) { next(e); }
 };
 const createSubject = async (req, res, next) => {
     try { res.status(201).json(await subjectService.createSubject(req.body)); } catch (e) { next(e); }
